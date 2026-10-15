@@ -7,8 +7,8 @@ UI, comentarios y seed data **en español**.
 ## Documentación del proyecto
 
 - `SPEC-MAP.md` — mapa de capacidades (índice de specs y orden de construcción).
-- `SPEC-identity.md` — spec del módulo en curso (`identity`).
-- `tasks/plan.md` + `tasks/todo.md` — plan y tareas del módulo activo.
+- `SPEC-identity.md` (cerrado) y `SPEC-vehicles.md` (activo) — specs por módulo.
+- `tasks/<módulo>/plan.md` + `todo.md` — plan y tareas del módulo. Índice en `tasks/README.md`.
 
 ## Comandos
 
