@@ -9,6 +9,7 @@ UI, comentarios y seed data **en español**.
 - `SPEC-MAP.md` — mapa de capacidades (índice de specs y orden de construcción).
 - `SPEC-<módulo>.md` — contrato de cada módulo (todos los del mapa están cerrados).
 - `tasks/<módulo>/plan.md` + `todo.md` — plan y tareas del módulo. Índice en `tasks/README.md`.
+- `DEPLOY.md` — despliegue en producción, cola, scheduler y PWA. Plantilla: `.env.production.example`.
 
 ## Comandos
 
@@ -21,6 +22,7 @@ php artisan test --filter=test_user_can_login # un método
 vendor/bin/pint            # Laravel Pint, preset por defecto (sin pint.json)
 php artisan migrate --seed                                     # datos demo
 php artisan reminders:generate                                 # recordatorios de documentos y mantenimiento
+php artisan admin:create admin@dominio.com --name="Admin"      # super_admin de producción (pide contraseña)
 php artisan shield:generate --all --panel=admin                # tras añadir recursos Filament
 php artisan optimize:clear                                     # caché de Filament
 ```
@@ -30,7 +32,7 @@ php artisan optimize:clear                                     # caché de Filam
 - **Dev y prod: PostgreSQL** (db `carcheck`, `postgres`/`postgres` en local). `.env.example` trae `DB_CONNECTION=pgsql`.
 - **Tests: SQLite `:memory:`** y `BCRYPT_ROUNDS=4` (fijado en `phpunit.xml`).
 - `php artisan migrate --seed` crea `admin@carcheck.test` / `password` (super_admin) y `demo@carcheck.test`.
-- **Correo**: dev usa `MAIL_MAILER=log` (no envía de verdad); configura SMTP real en producción.
+- **Correo y push**: dev usa `MAIL_MAILER=log` (no envía de verdad). En producción, email y push se **encolan** (`QUEUE_CONNECTION=database`): hace falta un `queue:work` supervisado y el scheduler (`DEPLOY.md`). El aviso in-app se guarda de inmediato.
 - **Usuarios con soft delete**: `DELETE /api/account` borra la cuenta salvo que el usuario sea `owner` de alguna organización (422 hasta traspasarla). Los tokens expiran a los 30 días (`config/sanctum.php`).
 
 ## CI
