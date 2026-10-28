@@ -7,7 +7,7 @@ UI, comentarios y seed data **en español**.
 ## Documentación del proyecto
 
 - `SPEC-MAP.md` — mapa de capacidades (índice de specs y orden de construcción).
-- `SPEC-identity.md` (cerrado) y `SPEC-vehicles.md` (activo) — specs por módulo.
+- `SPEC-<módulo>.md` — contrato de cada módulo (todos los del mapa están cerrados).
 - `tasks/<módulo>/plan.md` + `todo.md` — plan y tareas del módulo. Índice en `tasks/README.md`.
 
 ## Comandos
@@ -20,6 +20,7 @@ php artisan test --filter=AuthTest            # una clase
 php artisan test --filter=test_user_can_login # un método
 vendor/bin/pint            # Laravel Pint, preset por defecto (sin pint.json)
 php artisan migrate --seed                                     # datos demo
+php artisan reminders:generate                                 # recordatorios de documentos y mantenimiento
 php artisan shield:generate --all --panel=admin                # tras añadir recursos Filament
 php artisan optimize:clear                                     # caché de Filament
 ```

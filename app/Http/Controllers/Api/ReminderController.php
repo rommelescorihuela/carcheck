@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ReminderResource;
-use App\Models\Organization;
 use App\Models\Reminder;
 use App\Models\Vehicle;
 use App\Services\ReminderGenerator;
+use App\Services\VehicleScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -72,29 +72,11 @@ class ReminderController extends Controller
     }
 
     /**
-     * Vehículos del ámbito pedido, con el mismo criterio que `vehicles`.
-     *
      * @return Builder<Vehicle>
      */
     private function vehicles(Request $request): Builder
     {
-        $user = $request->user();
-        $query = Vehicle::query();
-
-        if ($request->filled('organization_id')) {
-            $organization = Organization::findOrFail((int) $request->input('organization_id'));
-            abort_unless($organization->hasMember($user), 403);
-
-            return $query->where('owner_type', $organization->getMorphClass())
-                ->where('owner_id', $organization->getKey());
-        }
-
-        if ($request->input('scope') === 'personal') {
-            return $query->where('owner_type', $user->getMorphClass())
-                ->where('owner_id', $user->getKey());
-        }
-
-        return $query->accessibleBy($user);
+        return app(VehicleScope::class)->for($request);
     }
 
     /**

@@ -9,6 +9,7 @@ use App\Http\Resources\VehicleResource;
 use App\Models\Organization;
 use App\Models\User;
 use App\Models\Vehicle;
+use App\Services\VehicleScope;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -17,20 +18,7 @@ class VehicleController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $user = $request->user();
-        $query = Vehicle::query()->latest();
-
-        if ($request->filled('organization_id')) {
-            $organization = Organization::findOrFail((int) $request->input('organization_id'));
-            abort_unless($organization->hasMember($user), 403);
-            $query->where('owner_type', $organization->getMorphClass())
-                ->where('owner_id', $organization->getKey());
-        } elseif ($request->input('scope') === 'personal') {
-            $query->where('owner_type', $user->getMorphClass())
-                ->where('owner_id', $user->getKey());
-        } else {
-            $query->accessibleBy($user);
-        }
+        $query = app(VehicleScope::class)->for($request)->latest();
 
         return VehicleResource::collection($query->paginate(15))->response();
     }

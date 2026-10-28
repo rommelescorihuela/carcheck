@@ -1,6 +1,6 @@
 # Tasks
 
-Planes y tareas por módulo. El **módulo activo** es el que no está cerrado.
+Planes y tareas por módulo. Todos los módulos del [mapa](../SPEC-MAP.md) están cerrados.
 
 | Módulo | Estado | Plan |
 |---|---|---|
@@ -12,6 +12,7 @@ Planes y tareas por módulo. El **módulo activo** es el que no está cerrado.
 | `billing` | ✅ cerrado | [`billing/plan.md`](./billing/plan.md) |
 | `notifications` | ✅ cerrado | [`notifications/plan.md`](./notifications/plan.md) |
 | `reminders` | ✅ cerrado | [`reminders/plan.md`](./reminders/plan.md) |
+| `reporting` | ✅ cerrado | [`reporting/plan.md`](./reporting/plan.md) |
 
 Orden de construcción (ver [`../SPEC-MAP.md`](../SPEC-MAP.md)): `identity` → `vehicles`, `billing` →
 `maintenance`, `fuel`, `documents` → `notifications` → `reminders` → `reporting`.

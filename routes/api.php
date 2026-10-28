@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OrganizationController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\ReminderController;
+use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\VehicleController;
 use Illuminate\Support\Facades\Route;
 
@@ -107,4 +108,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/reminders', [ReminderController::class, 'index']);
     Route::post('/reminders/sync', [ReminderController::class, 'sync']);
     Route::post('/reminders/{reminder}/dismiss', [ReminderController::class, 'dismiss']);
+
+    Route::get('/reports/expenses', [ReportController::class, 'expenses']);
 });
