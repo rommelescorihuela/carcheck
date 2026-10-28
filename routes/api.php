@@ -110,4 +110,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reminders/{reminder}/dismiss', [ReminderController::class, 'dismiss']);
 
     Route::get('/reports/expenses', [ReportController::class, 'expenses']);
+    Route::get('/reports/expenses/export', [ReportController::class, 'export']);
 });
