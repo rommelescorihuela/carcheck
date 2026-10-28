@@ -75,6 +75,14 @@ class Vehicle extends Model implements HasMedia
     }
 
     /**
+     * @return HasMany<Document, $this>
+     */
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class);
+    }
+
+    /**
      * @return Attribute<string|null, never>
      */
     protected function photoUrl(): Attribute
