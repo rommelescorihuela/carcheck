@@ -136,6 +136,11 @@ class ExpenseReportCsv
             return $value;
         }
 
+        // Los importes generados por el informe ya son numéricos: no se tocan.
+        if (preg_match('/^-?\d+(\.\d+)?$/', $value) === 1) {
+            return $value;
+        }
+
         return preg_match('/^[=+\-@\t\r]/', $value) === 1 ? "'".$value : $value;
     }
 
