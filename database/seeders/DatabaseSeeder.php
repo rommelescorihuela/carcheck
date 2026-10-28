@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(RolesSeeder::class);
         $this->call(MaintenanceTypeSeeder::class);
+        $this->call(PlanSeeder::class);
 
         $admin = User::factory()->create([
             'name' => 'Admin CarCheck',

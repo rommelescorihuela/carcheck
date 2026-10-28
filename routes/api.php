@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BillingController;
 use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\FuelEntryController;
 use App\Http\Controllers\Api\InvitationController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Api\MaintenanceRecordController;
 use App\Http\Controllers\Api\MaintenanceTypeController;
 use App\Http\Controllers\Api\MemberController;
 use App\Http\Controllers\Api\OrganizationController;
+use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\VehicleController;
 use Illuminate\Support\Facades\Route;
 
@@ -73,4 +75,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/documents/{document}', [DocumentController::class, 'destroy']);
     Route::post('/documents/{document}/file', [DocumentController::class, 'storeFile']);
     Route::delete('/documents/{document}/file', [DocumentController::class, 'destroyFile']);
+
+    Route::get('/billing/plans', [BillingController::class, 'plans']);
+    Route::get('/billing/subscription', [BillingController::class, 'show']);
+    Route::post('/billing/subscription', [BillingController::class, 'store']);
+    Route::patch('/billing/subscription', [BillingController::class, 'update']);
+    Route::delete('/billing/subscription', [BillingController::class, 'destroy']);
+
+    Route::get('/billing/payments', [PaymentController::class, 'index']);
+    Route::post('/billing/payments', [PaymentController::class, 'store']);
+    Route::post('/billing/payments/{payment}/proof', [PaymentController::class, 'storeProof']);
+    Route::delete('/billing/payments/{payment}/proof', [PaymentController::class, 'destroyProof']);
+    Route::post('/billing/payments/{payment}/approve', [PaymentController::class, 'approve']);
+    Route::post('/billing/payments/{payment}/reject', [PaymentController::class, 'reject']);
 });

@@ -30,6 +30,7 @@ class AdminAccessTest extends TestCase
         $this->actingAs($admin)->get('/admin')->assertSuccessful();
         $this->actingAs($admin)->get('/admin/organizations')->assertSuccessful();
         $this->actingAs($admin)->get('/admin/users')->assertSuccessful();
+        $this->actingAs($admin)->get('/admin/payments')->assertSuccessful();
     }
 
     public function test_regular_user_cannot_access_panel(): void
