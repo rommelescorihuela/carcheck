@@ -35,7 +35,8 @@ Historias / criterios de aceptación:
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/api/reports/expenses` | Informe de gastos del periodo |
+| GET | `/api/reports/expenses` | Informe de gastos del periodo (JSON) |
+| GET | `/api/reports/expenses/export` | El mismo informe en CSV (`Content-Disposition: attachment`) |
 
 Parámetros:
 
@@ -119,12 +120,14 @@ PostgreSQL (los tests corren en SQLite).
 ```text
 carcheck/
   app/Services/ExpenseReport.php
+  app/Services/ExpenseReportCsv.php
   app/Services/VehicleScope.php
   app/Http/Controllers/Api/ReportController.php
-  routes/api.php
+  routes/api.php, config/cors.php (expone Content-Disposition)
   tests/Feature/Reports/*
 carcheck-app/
-  src/api/{types,endpoints}.ts, src/pages/Reports.tsx
+  src/api/{types,endpoints,client}.ts, src/lib/download.ts
+  src/stores/reports.ts, src/pages/Reports.tsx
   e2e/reports.spec.ts
 ```
 
@@ -145,13 +148,17 @@ periodo, resuelve el ámbito y delega. Fechas `Y-m-d` en la API; el cliente form
   cuenta pagos aprobados del propietario; periodo vacío devuelve listas vacías.
 - **Backend (`ReportApiTest`)**: ámbito personal/organización (403 para no miembro), aislamiento de
   vehículos ajenos (404 con `vehicle_id`), filtro por vehículo, validación de fechas y defaults.
-- **Cliente**: E2E `reports.spec.ts` (registro → vehículo → mantenimiento → combustible → informe).
+- **CSV (`ReportExportTest`)**: mismas secciones y filtros que el JSON, monedas separadas,
+  `Content-Disposition`, 404 para vehículo ajeno y neutralización de valores tipo fórmula.
+- **Cliente (`reports.test.ts`)**: carga, descarte de respuestas viejas, error y descarga del blob.
+- **E2E `reports.spec.ts`**: registro → vehículo → mantenimiento → combustible → informe → descarga
+  del CSV autenticado.
 
 ## Boundaries
 
 - **Siempre:** agrupar por moneda, reutilizar los importes de los módulos (no recalcular con otra
   fórmula), respetar el ámbito de `vehicles`, calcular en PHP.
-- **Preguntar antes:** exportar a CSV/PDF, gráficos, comparación entre periodos, presupuestos,
+- **Preguntar antes:** exportar a PDF, gráficos, comparación entre periodos, presupuestos,
   conversión de moneda con tasas históricas, informe por conductor/sucursal.
 - **Nunca:** sumar monedas distintas en un solo número, incluir pagos pendientes o rechazados,
   mostrar vehículos ajenos, copiar código de `openGym` (AGPL-3.0).
@@ -162,6 +169,7 @@ periodo, resuelve el ámbito y delega. Fechas `Y-m-d` en la API; el cliente form
 - Dos monedas dan dos filas de total, sin mezclarse.
 - El desglose por vehículo y por mes cuadra con los totales.
 - Los pagos pendientes no aparecen en `billing`.
+- El CSV repite el informe con las mismas cifras y se descarga con el `Bearer` de la sesión.
 - `php artisan test` y `npm run test` en verde; `pint` y `typecheck` limpios.
 
 ## Decisiones y caveats

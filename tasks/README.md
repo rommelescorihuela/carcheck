@@ -16,3 +16,11 @@ Planes y tareas por módulo. Todos los módulos del [mapa](../SPEC-MAP.md) está
 
 Orden de construcción (ver [`../SPEC-MAP.md`](../SPEC-MAP.md)): `identity` → `vehicles`, `billing` →
 `maintenance`, `fuel`, `documents` → `notifications` → `reminders` → `reporting`.
+
+## Extras de cierre (post-mapa)
+
+- Catálogo de planes editable en `/admin` (`PlanResource`, sin borrado: se desactiva).
+- Exportación CSV del informe (`GET /api/reports/expenses/export`) con descarga autenticada en la PWA.
+- Email y push encolados (`SendPushNotification`, `Mail::queue`); el aviso in-app sigue inmediato.
+- `admin:create` para el primer `super_admin` de producción.
+- Despliegue documentado en [`../DEPLOY.md`](../DEPLOY.md) con `.env.production.example`.
