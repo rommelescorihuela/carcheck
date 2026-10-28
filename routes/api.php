@@ -3,6 +3,9 @@
 use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\InvitationController;
+use App\Http\Controllers\Api\MaintenancePlanController;
+use App\Http\Controllers\Api\MaintenanceRecordController;
+use App\Http\Controllers\Api\MaintenanceTypeController;
 use App\Http\Controllers\Api\MemberController;
 use App\Http\Controllers\Api\OrganizationController;
 use App\Http\Controllers\Api\VehicleController;
@@ -34,4 +37,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/vehicles/{vehicle}/photo', [VehicleController::class, 'storePhoto']);
     Route::delete('/vehicles/{vehicle}/photo', [VehicleController::class, 'destroyPhoto']);
     Route::post('/vehicles/{vehicle}/transfer', [VehicleController::class, 'transfer']);
+
+    Route::get('/maintenance-types', [MaintenanceTypeController::class, 'index']);
+    Route::post('/maintenance-types', [MaintenanceTypeController::class, 'store']);
+    Route::patch('/maintenance-types/{type}', [MaintenanceTypeController::class, 'update']);
+    Route::delete('/maintenance-types/{type}', [MaintenanceTypeController::class, 'destroy']);
+
+    Route::get('/vehicles/{vehicle}/maintenance-plans', [MaintenancePlanController::class, 'index']);
+    Route::put('/vehicles/{vehicle}/maintenance-plans/{type}', [MaintenancePlanController::class, 'update']);
+    Route::delete('/vehicles/{vehicle}/maintenance-plans/{type}', [MaintenancePlanController::class, 'destroy']);
+
+    Route::get('/vehicles/{vehicle}/maintenance-records', [MaintenanceRecordController::class, 'index']);
+    Route::post('/vehicles/{vehicle}/maintenance-records', [MaintenanceRecordController::class, 'store']);
+    Route::get('/vehicles/{vehicle}/maintenance-due', [MaintenanceRecordController::class, 'due']);
+    Route::get('/maintenance-records/{record}', [MaintenanceRecordController::class, 'show']);
+    Route::patch('/maintenance-records/{record}', [MaintenanceRecordController::class, 'update']);
+    Route::delete('/maintenance-records/{record}', [MaintenanceRecordController::class, 'destroy']);
+    Route::post('/maintenance-records/{record}/attachments', [MaintenanceRecordController::class, 'storeAttachment']);
+    Route::delete('/maintenance-records/{record}/attachments/{media}', [MaintenanceRecordController::class, 'destroyAttachment']);
 });
