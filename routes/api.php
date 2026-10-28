@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\MemberController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OrganizationController;
 use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\ReminderController;
 use App\Http\Controllers\Api\VehicleController;
 use Illuminate\Support\Facades\Route;
 
@@ -102,4 +103,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Las rutas con `{notification}` van al final para no capturar los segmentos fijos.
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'markRead']);
     Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy']);
+
+    Route::get('/reminders', [ReminderController::class, 'index']);
+    Route::post('/reminders/sync', [ReminderController::class, 'sync']);
+    Route::post('/reminders/{reminder}/dismiss', [ReminderController::class, 'dismiss']);
 });

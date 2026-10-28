@@ -83,6 +83,14 @@ class Vehicle extends Model implements HasMedia
     }
 
     /**
+     * @return HasMany<Reminder, $this>
+     */
+    public function reminders(): HasMany
+    {
+        return $this->hasMany(Reminder::class);
+    }
+
+    /**
      * @return Attribute<string|null, never>
      */
     protected function photoUrl(): Attribute
