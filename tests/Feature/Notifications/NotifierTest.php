@@ -4,12 +4,14 @@ namespace Tests\Feature\Notifications;
 
 use App\Contracts\PushSender;
 use App\Enums\NotificationCategory;
+use App\Jobs\SendPushNotification;
 use App\Mail\NotificationMail;
 use App\Models\NotificationPreference;
 use App\Models\User;
 use App\Services\Notifier;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
 use Tests\Support\FakePushSender;
 use Tests\TestCase;
 
@@ -55,7 +57,7 @@ class NotifierTest extends TestCase
         $this->assertSame($vehicleId, $data['payload']['vehicle_id']);
         $this->assertSame('/vehiculos/1/mantenimiento', $data['url']);
 
-        Mail::assertSent(NotificationMail::class, function (NotificationMail $mail) use ($user): bool {
+        Mail::assertQueued(NotificationMail::class, function (NotificationMail $mail) use ($user): bool {
             return $mail->hasTo($user->email)
                 && $mail->title === 'Cambio de aceite'
                 && $mail->body === 'Tu Corolla cumple 10.000 km.';
@@ -83,7 +85,7 @@ class NotifierTest extends TestCase
         $this->assertNull($notification);
         $this->assertDatabaseCount('notifications', 0);
         // Los otros canales siguen activos.
-        Mail::assertSent(NotificationMail::class);
+        Mail::assertQueued(NotificationMail::class);
         $this->assertCount(1, $this->push->sent);
     }
 
@@ -103,8 +105,30 @@ class NotifierTest extends TestCase
         );
 
         $this->assertNotNull($notification);
-        Mail::assertNothingSent();
+        Mail::assertNothingQueued();
         $this->assertCount(0, $this->push->sent);
+    }
+
+    public function test_push_is_dispatched_as_a_job(): void
+    {
+        Queue::fake();
+
+        $user = User::factory()->create();
+
+        app(Notifier::class)->send(
+            $user,
+            NotificationCategory::Reminders,
+            'Recordatorio',
+            'Revisión próxima.',
+            ['reminder_id' => 9],
+        );
+
+        Queue::assertPushed(SendPushNotification::class, function (SendPushNotification $job) use ($user): bool {
+            return $job->user->is($user)
+                && $job->title === 'Recordatorio'
+                && $job->body === 'Revisión próxima.'
+                && $job->payload['payload']['reminder_id'] === 9;
+        });
     }
 
     public function test_send_to_many_notifies_each_user(): void

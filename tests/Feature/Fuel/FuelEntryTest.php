@@ -121,7 +121,7 @@ class FuelEntryTest extends TestCase
         $this->getJson("/api/fuel-entries/{$entry->id}")
             ->assertOk()
             ->assertJsonPath('data.id', $entry->id)
-            ->assertJsonPath('data.total', 30 * (float) $entry->unit_price);
+            ->assertJsonPath('data.total', round(30 * (float) $entry->unit_price, 2));
     }
 
     public function test_foreign_entry_is_forbidden(): void

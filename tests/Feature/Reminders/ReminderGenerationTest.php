@@ -63,7 +63,7 @@ class ReminderGenerationTest extends TestCase
         $this->assertSame($reminder->id, $notification->data['payload']['reminder_id']);
         $this->assertSame($vehicle->id, $notification->data['payload']['vehicle_id']);
 
-        Mail::assertSent(NotificationMail::class, fn (NotificationMail $mail): bool => $mail->hasTo($user->email)
+        Mail::assertQueued(NotificationMail::class, fn (NotificationMail $mail): bool => $mail->hasTo($user->email)
             && $mail->title === 'Seguro: por vencer');
         $this->assertCount(1, $this->push->sent);
     }

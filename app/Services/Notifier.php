@@ -2,15 +2,14 @@
 
 namespace App\Services;
 
-use App\Contracts\PushSender;
 use App\Enums\NotificationCategory;
+use App\Jobs\SendPushNotification;
 use App\Mail\NotificationMail;
 use App\Models\User;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use NotificationChannels\WebPush\WebPushMessage;
 use Throwable;
 
 /**
@@ -21,7 +20,6 @@ class Notifier
 {
     public function __construct(
         private readonly NotificationPreferences $preferences,
-        private readonly PushSender $push,
     ) {}
 
     /**
@@ -57,9 +55,10 @@ class Notifier
 
         if ($this->preferences->allows($user, $category, 'email') && filled($user->email)) {
             try {
-                Mail::to($user)->send(new NotificationMail($title, $body, $url));
+                // La bandeja ya quedó guardada: el correo puede salir en segundo plano.
+                Mail::to($user)->queue(new NotificationMail($title, $body, $url));
             } catch (Throwable $exception) {
-                Log::warning('No se pudo enviar el email de aviso.', [
+                Log::warning('No se pudo encolar el email de aviso.', [
                     'user_id' => $user->getKey(),
                     'error' => $exception->getMessage(),
                 ]);
@@ -68,13 +67,9 @@ class Notifier
 
         if ($this->preferences->allows($user, $category, 'push')) {
             try {
-                $this->push->send($user, (new WebPushMessage)
-                    ->title($title)
-                    ->body($body)
-                    ->icon('/icons/icon-192.png')
-                    ->data($payload));
+                SendPushNotification::dispatch($user, $title, $body, $payload);
             } catch (Throwable $exception) {
-                Log::warning('No se pudo enviar el push de aviso.', [
+                Log::warning('No se pudo encolar el push de aviso.', [
                     'user_id' => $user->getKey(),
                     'error' => $exception->getMessage(),
                 ]);
