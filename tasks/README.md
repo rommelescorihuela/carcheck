@@ -7,6 +7,8 @@ Planes y tareas por módulo. El **módulo activo** es el que no está cerrado.
 | `identity` | ✅ cerrado | [`identity/plan.md`](./identity/plan.md) |
 | `vehicles` | ✅ cerrado | [`vehicles/plan.md`](./vehicles/plan.md) |
 | `maintenance` | ✅ cerrado | [`maintenance/plan.md`](./maintenance/plan.md) |
+| `fuel` | ✅ cerrado | [`fuel/plan.md`](./fuel/plan.md) |
+| `documents` | 🚧 activo | [`documents/plan.md`](./documents/plan.md) |
 
 Orden de construcción (ver [`../SPEC-MAP.md`](../SPEC-MAP.md)): `identity` → `vehicles`, `billing` →
 `maintenance`, `fuel`, `documents` → `notifications` → `reminders` → `reporting`.

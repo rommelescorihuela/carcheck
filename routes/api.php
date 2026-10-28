@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\FuelEntryController;
 use App\Http\Controllers\Api\InvitationController;
 use App\Http\Controllers\Api\MaintenancePlanController;
 use App\Http\Controllers\Api\MaintenanceRecordController;
@@ -55,4 +56,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/maintenance-records/{record}', [MaintenanceRecordController::class, 'destroy']);
     Route::post('/maintenance-records/{record}/attachments', [MaintenanceRecordController::class, 'storeAttachment']);
     Route::delete('/maintenance-records/{record}/attachments/{media}', [MaintenanceRecordController::class, 'destroyAttachment']);
+
+    Route::get('/vehicles/{vehicle}/fuel-entries', [FuelEntryController::class, 'index']);
+    Route::post('/vehicles/{vehicle}/fuel-entries', [FuelEntryController::class, 'store']);
+    Route::get('/vehicles/{vehicle}/fuel-summary', [FuelEntryController::class, 'summary']);
+    Route::get('/fuel-entries/{entry}', [FuelEntryController::class, 'show']);
+    Route::patch('/fuel-entries/{entry}', [FuelEntryController::class, 'update']);
+    Route::delete('/fuel-entries/{entry}', [FuelEntryController::class, 'destroy']);
 });
