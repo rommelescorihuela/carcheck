@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\MaintenancePlanController;
 use App\Http\Controllers\Api\MaintenanceRecordController;
 use App\Http\Controllers\Api\MaintenanceTypeController;
 use App\Http\Controllers\Api\MemberController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OrganizationController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\VehicleController;
@@ -88,4 +89,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/billing/payments/{payment}/proof', [PaymentController::class, 'destroyProof']);
     Route::post('/billing/payments/{payment}/approve', [PaymentController::class, 'approve']);
     Route::post('/billing/payments/{payment}/reject', [PaymentController::class, 'reject']);
+
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
+    Route::get('/notifications/preferences', [NotificationController::class, 'preferences']);
+    Route::put('/notifications/preferences', [NotificationController::class, 'updatePreferences']);
+    Route::get('/notifications/push/public-key', [NotificationController::class, 'publicKey']);
+    Route::post('/notifications/push-subscriptions', [NotificationController::class, 'storeSubscription']);
+    Route::delete('/notifications/push-subscriptions', [NotificationController::class, 'destroySubscription']);
+    Route::post('/notifications/test', [NotificationController::class, 'sendTest']);
+    // Las rutas con `{notification}` van al final para no capturar los segmentos fijos.
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markRead']);
+    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy']);
 });
