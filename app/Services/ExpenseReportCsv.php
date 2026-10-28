@@ -128,6 +128,10 @@ class ExpenseReportCsv
      */
     private function cell(mixed $value): string|int|float
     {
+        if ($value === null) {
+            return '';
+        }
+
         if (! is_string($value)) {
             return $value;
         }

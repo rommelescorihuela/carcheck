@@ -113,6 +113,24 @@ class ReportExportTest extends TestCase
         $this->assertStringNotContainsString('10.00', $csv);
     }
 
+    public function test_export_handles_a_vehicle_without_plate(): void
+    {
+        $user = User::factory()->create();
+        $vehicle = Vehicle::factory()->forUser($user)->create([
+            'make' => 'Toyota',
+            'model' => 'Corolla',
+            'plate' => null,
+        ]);
+
+        $this->fuel($vehicle, 40, 1, 'USD');
+
+        Sanctum::actingAs($user);
+
+        $csv = $this->get('/api/reports/expenses/export')->assertOk()->getContent();
+
+        $this->assertStringContainsString("\"Toyota Corolla\",,USD,0.00,40.00,40.00,0,1\n", $csv);
+    }
+
     public function test_export_hides_foreign_vehicles(): void
     {
         $user = User::factory()->create();
