@@ -299,8 +299,8 @@ find storage bootstrap/cache -type d -exec chmod 775 {} \;
 find storage bootstrap/cache -type f -exec chmod 664 {} \;
 ```
 
-Nunca `777`. Los documentos aceptan hasta 10 MB y las fotos 5 MB. Crea
-`carcheck/public/.user.ini` (o en `public_html/api/.user.ini`) si el host usa PHP-FPM:
+Nunca `777`. Los documentos aceptan hasta 10 MB y las fotos 5 MB. El ZIP compartido ya trae
+`public/.user.ini` (se copia a `public_html/api/.user.ini`) con:
 
 ```ini
 upload_max_filesize = 12M
@@ -309,7 +309,8 @@ memory_limit = 256M
 max_execution_time = 120
 ```
 
-Comprueba el valor real en **Select PHP Version → Options**.
+Si el host no respeta `.user.ini`, cámbialo en **MultiPHP INI Editor** o **Select PHP Version →
+Options**, y comprueba el valor real con un `phpinfo()` temporal.
 
 ### 6. La PWA
 
@@ -317,13 +318,20 @@ Sube **el contenido de `carcheck-pwa.zip`** al document root del dominio o subdo
 (`public_html` o `public_html/app`). Ya incluye `.htaccess` con:
 
 - fallback a `index.html` para `/flota`, `/vehiculos/12`…;
-- `sw.js` y `manifest.webmanifest` sin caché;
+- `sw.js`, `manifest.webmanifest` y `config.js` sin caché;
 - assets con caché larga.
 
-El build se hace en tu equipo con la URL real de la API:
+La URL de la API vive en **`config.js`**, junto a `index.html`. Edítalo en el servidor con File
+Manager y recarga: no hace falta recompilar.
+
+```js
+window.__CARCHECK_CONFIG__ = { apiUrl: 'https://api.tudominio.com/api' }
+```
+
+Para generar un paquete nuevo con la URL ya incluida (opcional, requiere Node en tu equipo):
 
 ```bash
-VITE_API_URL=https://api.tudominio.com/api SKIP_INSTALL=1 ./build.sh
+SHARED_HOSTING=1 VITE_API_URL=https://api.tudominio.com/api SKIP_INSTALL=1 ./build.sh
 ```
 
 Activa **AutoSSL** en ambos dominios: sin HTTPS no hay service worker ni push.
@@ -331,12 +339,16 @@ Activa **AutoSSL** en ambos dominios: sin HTTPS no hay service worker ni push.
 ### 7. Actualizar sin Terminal
 
 1. Copia la base de datos y `storage/app/public` desde cPanel.
-2. Sube y extrae el ZIP nuevo del backend sobre `carcheck/` (no incluye `.env`, así que se
-   conserva).
-3. Vuelve a copiar `carcheck/public` a `public_html/api` (el `index.php` y `.htaccess` nuevos).
-4. Ejecuta una tarea de cron temporal:
+2. Sube y extrae `carcheck-backend-shared.zip` sobre `carcheck/`. Sustituye todo **menos**
+   `storage/` y `.env`: el ZIP no los incluye precisamente para no pisarlos.
+3. Vuelve a copiar el contenido de `carcheck/public` a `public_html/api` (así se actualizan
+   `index.php`, `.htaccess` y `public/build`).
+4. Vuelve a subir `carcheck-pwa.zip` si cambió la PWA; si solo cambió el dominio de la API basta
+   con editar `config.js`.
+5. Ejecuta una tarea de cron temporal:
    `php artisan migrate --force && php artisan optimize:clear && php artisan optimize`.
-5. Revisa `/up`, el panel y una descarga de CSV.
+   Bórrala al terminar.
+6. Revisa `/up`, el panel y una descarga de CSV.
 
 ### Limitaciones reales de un plan compartido
 
