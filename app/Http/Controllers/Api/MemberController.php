@@ -66,6 +66,12 @@ class MemberController extends Controller
             ]);
         }
 
+        // Quitar a otro administrador es potestad del propietario, igual que nombrarlo.
+        if ($organization->roleOf($user) === 'admin'
+            && $organization->roleOf($request->user()) !== 'owner') {
+            abort(403, 'Solo el propietario puede quitar a un administrador.');
+        }
+
         $organization->members()->detach($user->id);
 
         return response()->json(['message' => 'Miembro eliminado.']);

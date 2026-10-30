@@ -4,8 +4,10 @@ namespace App\Models;
 
 use App\Enums\PaymentMethod;
 use App\Enums\SubscriptionStatus;
+use App\Services\Billing;
 use Database\Factories\SubscriptionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -34,6 +36,17 @@ class Subscription extends Model
             'current_period_end' => 'date',
             'canceled_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Estado real para el panel: una prueba o un periodo vencido se muestra como `expired`
+     * aunque la columna siga diciendo `trialing`/`active`.
+     *
+     * @return Attribute<string, never>
+     */
+    protected function effectiveStatus(): Attribute
+    {
+        return Attribute::get(fn (): string => app(Billing::class)->effectiveStatus($this));
     }
 
     /**

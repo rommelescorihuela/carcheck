@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 class UserResource extends Resource
@@ -35,6 +36,20 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         return UsersTable::configure($table);
+    }
+
+    /**
+     * Una cuenta no puede borrarse a sí misma desde el panel: evita dejar la plataforma
+     * sin el superadmin que está operando.
+     */
+    public static function canDelete(Model $record): bool
+    {
+        return ! (auth()->user()?->is($record) ?? false);
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return false;
     }
 
     public static function getRelations(): array

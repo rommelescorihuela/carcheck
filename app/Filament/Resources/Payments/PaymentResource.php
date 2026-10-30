@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Payments;
 
+use App\Enums\PaymentStatus;
 use App\Filament\Resources\Payments\Pages\ListPayments;
 use App\Filament\Resources\Payments\Tables\PaymentsTable;
 use App\Models\Payment;
@@ -37,6 +38,23 @@ class PaymentResource extends Resource
     public static function canCreate(): bool
     {
         return false;
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $pending = Payment::query()->where('status', PaymentStatus::Pending)->count();
+
+        return $pending > 0 ? (string) $pending : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Pagos pendientes de revisión';
     }
 
     public static function getPages(): array

@@ -52,9 +52,20 @@ class PaymentController extends Controller
         unset($validated['organization_id']);
 
         $subscription = $this->currentSubscription($owner);
+        $planCurrency = strtoupper((string) $subscription->plan->currency);
+        $currency = strtoupper($validated['currency']);
+
+        // Si paga en otra moneda, la tasa es obligatoria: sin ella el equivalente no es fiable.
+        if ($currency !== $planCurrency && blank($validated['exchange_rate'] ?? null)) {
+            throw ValidationException::withMessages([
+                'exchange_rate' => ['Indica la tasa de cambio de tu moneda frente a '.$planCurrency.'.'],
+            ]);
+        }
+
+        $validated['currency'] = $currency;
+        $validated['exchange_rate'] = $currency === $planCurrency ? 1 : $validated['exchange_rate'];
 
         $payment = $subscription->payments()->create($validated + [
-            'exchange_rate' => 1,
             'status' => PaymentStatus::Pending,
         ]);
 

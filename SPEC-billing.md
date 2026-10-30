@@ -174,6 +174,8 @@ string + cast a enum. En el cliente, `import type` y `Decimal` para montos.
 - Un pago insuficiente o sin rol `super_admin` no se aprueba.
 - Un pago en VES con tasa correcta cubre un plan en USD; sin tasa, se rechaza.
 - Un miembro simple ve la suscripción de su organización pero no puede cambiarla.
+- Crear un vehículo o invitar a alguien por encima del plan devuelve 422 con un mensaje claro.
+- Una suscripción vencida o pendiente de pago deja el ámbito en solo lectura para altas.
 - `php artisan test` y `npm run test` en verde; `pint` y `typecheck` limpios.
 
 ## Decisiones y caveats
@@ -184,5 +186,8 @@ string + cast a enum. En el cliente, `import type` y `Decimal` para montos.
 3. **Tasa explícita**: el pago guarda su moneda y la tasa usada; `amount_base` se deriva. Si la
    moneda coincide con la del plan, la tasa es 1.
 4. **Sin prorrateo**: un cambio de plan aplica desde ya, sin devolución ni cobro proporcional.
-5. **Límites informados, no bloqueantes en el MVP**: `max_vehicles`/`max_members` se exponen como
-   uso vs límite; bloquear la creación de vehículos se decide cuando exista gating global.
+5. **Límites bloqueantes**: `max_vehicles`/`max_members` se aplican al crear vehículos (también al
+   traspasarlos) y al invitar o aceptar miembros. Cuentan las invitaciones vigentes, no solo los
+   miembros, para no sobrevender plazas. Un propietario sin suscripción usa el plan activo más
+   barato, de modo que una cuenta recién creada tampoco queda sin límites. Una suscripción vencida
+   o pendiente de pago conserva la lectura, pero bloquea las altas hasta regularizarse.

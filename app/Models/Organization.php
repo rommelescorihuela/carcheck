@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Str;
 
 #[Fillable(['name', 'slug', 'owner_id', 'currency', 'timezone'])]
@@ -39,6 +41,34 @@ class Organization extends Model
             $organization->members()->syncWithoutDetaching([
                 $organization->owner_id => ['role' => 'owner', 'joined_at' => now()],
             ]);
+        });
+
+        // Cambiar de propietario desde el panel no puede dejar al nuevo fuera de la
+        // organización ni al anterior con rol `owner`: el anterior baja a `admin`.
+        static::updated(function (Organization $organization) {
+            if (! $organization->wasChanged('owner_id')) {
+                return;
+            }
+
+            $previous = $organization->getOriginal('owner_id');
+
+            $organization->members()->syncWithoutDetaching([
+                $organization->owner_id => ['role' => 'owner', 'joined_at' => now()],
+            ]);
+
+            if ($previous !== null
+                && (int) $previous !== (int) $organization->owner_id
+                && $organization->members()->whereKey($previous)->exists()) {
+                $organization->members()->updateExistingPivot($previous, ['role' => 'admin']);
+            }
+
+            $organization->roleCache = [];
+        });
+
+        // Al dar de baja la organización sus vehículos se van con ella (soft delete);
+        // las suscripciones se conservan como historial de facturación.
+        static::deleting(function (Organization $organization) {
+            $organization->vehicles()->delete();
         });
     }
 
@@ -79,6 +109,30 @@ class Organization extends Model
     public function invitations(): HasMany
     {
         return $this->hasMany(Invitation::class);
+    }
+
+    /**
+     * @return MorphMany<Vehicle, $this>
+     */
+    public function vehicles(): MorphMany
+    {
+        return $this->morphMany(Vehicle::class, 'owner');
+    }
+
+    /**
+     * @return MorphMany<Subscription, $this>
+     */
+    public function subscriptions(): MorphMany
+    {
+        return $this->morphMany(Subscription::class, 'owner');
+    }
+
+    /**
+     * @return MorphOne<Subscription, $this>
+     */
+    public function currentSubscription(): MorphOne
+    {
+        return $this->morphOne(Subscription::class, 'owner')->latestOfMany();
     }
 
     public function hasMember(User $user): bool

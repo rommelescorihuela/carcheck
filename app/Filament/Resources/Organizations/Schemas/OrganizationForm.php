@@ -21,7 +21,8 @@ class OrganizationForm
                     ->relationship('owner', 'name')
                     ->searchable()
                     ->preload()
-                    ->required(),
+                    ->required()
+                    ->helperText('Al cambiarlo, el nuevo propietario entra como owner y el anterior queda como admin.'),
                 TextInput::make('currency')
                     ->label('Moneda')
                     ->default('USD')

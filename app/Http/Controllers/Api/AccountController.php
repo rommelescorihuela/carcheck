@@ -22,6 +22,10 @@ class AccountController extends Controller
         }
 
         $user->organizations()->detach();
+
+        // Los vehículos personales se van con la cuenta (soft delete, como el resto del dominio).
+        $user->vehicles()->delete();
+
         $user->tokens()->delete();
         $user->delete();
 

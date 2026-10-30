@@ -9,6 +9,7 @@ use App\Http\Resources\VehicleResource;
 use App\Models\Organization;
 use App\Models\User;
 use App\Models\Vehicle;
+use App\Services\Billing;
 use App\Services\VehicleScope;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -40,6 +41,8 @@ class VehicleController extends Controller
         } else {
             $owner = $user;
         }
+
+        app(Billing::class)->assertCanAddVehicle($owner);
 
         $vehicle = new Vehicle($validated);
         $vehicle->owner()->associate($owner);
@@ -133,6 +136,10 @@ class VehicleController extends Controller
                 403,
                 'Solo el propietario de la organización puede sacar el vehículo.',
             );
+        }
+
+        if ($currentOwner !== null && ! $currentOwner->is($target)) {
+            app(Billing::class)->assertCanAddVehicle($target);
         }
 
         $vehicle->owner()->associate($target);

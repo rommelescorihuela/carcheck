@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -86,6 +88,36 @@ class User extends Authenticatable implements FilamentUser
     public function notificationPreferences(): HasMany
     {
         return $this->hasMany(NotificationPreference::class);
+    }
+
+    /**
+     * Vehículos del ámbito personal (los de sus organizaciones no cuentan aquí).
+     *
+     * @return MorphMany<Vehicle, $this>
+     */
+    public function vehicles(): MorphMany
+    {
+        return $this->morphMany(Vehicle::class, 'owner');
+    }
+
+    /**
+     * Suscripciones del propietario (histórico completo).
+     *
+     * @return MorphMany<Subscription, $this>
+     */
+    public function subscriptions(): MorphMany
+    {
+        return $this->morphMany(Subscription::class, 'owner');
+    }
+
+    /**
+     * Suscripción vigente para el panel: la última por id.
+     *
+     * @return MorphOne<Subscription, $this>
+     */
+    public function currentSubscription(): MorphOne
+    {
+        return $this->morphOne(Subscription::class, 'owner')->latestOfMany();
     }
 
     public function belongsToOrganization(Organization $organization): bool

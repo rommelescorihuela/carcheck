@@ -104,6 +104,98 @@ class Billing
         ];
     }
 
+    /**
+     * Plan que gobierna el uso del propietario: el de su suscripción actual o, si todavía no
+     * eligió ninguno, el más barato de los activos. Así una cuenta recién creada no queda sin
+     * límites solo por no haber pasado aún por el alta de plan.
+     */
+    public function planFor(User|Organization $owner): ?Plan
+    {
+        return $this->currentFor($owner)?->plan ?? $this->defaultPlan();
+    }
+
+    public function defaultPlan(): ?Plan
+    {
+        return Plan::query()
+            ->where('is_active', true)
+            ->orderBy('sort')
+            ->orderBy('id')
+            ->first();
+    }
+
+    /**
+     * Bloquea crear vehículos por encima del plan. Se llama desde la API (alta y traspaso).
+     */
+    public function assertCanAddVehicle(User|Organization $owner): void
+    {
+        $this->assertAccess($owner);
+
+        $limit = $this->planFor($owner)?->max_vehicles;
+
+        if ($limit === null) {
+            return;
+        }
+
+        if ($this->usage($owner)['vehicles'] >= $limit) {
+            $this->failLimit(
+                'plan',
+                $limit === 1
+                    ? 'Tu plan permite 1 vehículo. Mejora el plan para añadir otro.'
+                    : "Tu plan permite {$limit} vehículos. Mejora el plan para añadir otro.",
+            );
+        }
+    }
+
+    /**
+     * Bloquea invitar o aceptar miembros por encima del plan. `$alreadyPending` son las
+     * invitaciones vigentes que todavía no son miembros (también ocupan sitio).
+     */
+    public function assertCanAddMember(Organization $organization, int $alreadyPending = 0): void
+    {
+        $this->assertAccess($organization);
+
+        $limit = $this->planFor($organization)?->max_members;
+
+        if ($limit === null) {
+            return;
+        }
+
+        $used = $organization->members()->count() + max(0, $alreadyPending);
+
+        if ($used >= $limit) {
+            $this->failLimit(
+                'email',
+                $limit === 1
+                    ? 'Tu plan permite 1 miembro. Mejora el plan para invitar a alguien más.'
+                    : "Tu plan permite {$limit} miembros. Mejora el plan para invitar a alguien más.",
+            );
+        }
+    }
+
+    /**
+     * Un propietario con suscripción vencida o pendiente de pago conserva la lectura, pero no
+     * puede seguir dando de alta recursos hasta regularizarla.
+     */
+    private function assertAccess(User|Organization $owner): void
+    {
+        $subscription = $this->currentFor($owner);
+
+        if ($subscription !== null && ! $this->hasAccess($subscription)) {
+            $this->failLimit(
+                'subscription',
+                'Tu suscripción no está activa. Elige un plan y reporta el pago para seguir creando.',
+            );
+        }
+    }
+
+    /**
+     * @param  array<string, list<string>>  $messages
+     */
+    private function failLimit(string $key, string $message): never
+    {
+        throw ValidationException::withMessages([$key => [$message]]);
+    }
+
     public function subscribe(User|Organization $owner, Plan $plan): Subscription
     {
         $this->assertPlanAvailable($plan);

@@ -31,6 +31,7 @@ class UserForm
                     ->label('Contraseña')
                     ->password()
                     ->revealable()
+                    ->minLength(8)
                     ->dehydrated(fn (?string $state): bool => filled($state))
                     ->required(fn (string $operation): bool => $operation === 'create')
                     ->maxLength(255),

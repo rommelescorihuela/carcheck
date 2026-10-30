@@ -7,6 +7,7 @@ use App\Mail\OrganizationInvitation;
 use App\Models\Invitation;
 use App\Models\Organization;
 use App\Models\User;
+use App\Services\Billing;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -24,12 +25,30 @@ class InvitationController extends Controller
             'role' => 'required|in:admin,member',
         ]);
 
+        // Un `admin` no puede nombrar a otro `admin`: el rango lo reparte el propietario.
+        if ($validated['role'] === 'admin') {
+            abort_unless(
+                $organization->roleOf($request->user()) === 'owner',
+                403,
+                'Solo el propietario puede invitar a otro administrador.',
+            );
+        }
+
         $existing = User::where('email', $validated['email'])->first();
         if ($existing && $organization->hasMember($existing)) {
             throw ValidationException::withMessages([
                 'email' => ['Ese correo ya es miembro de la organización.'],
             ]);
         }
+
+        // Las invitaciones vigentes a otros correos también ocupan sitio en el plan.
+        $pending = $organization->invitations()
+            ->whereNull('accepted_at')
+            ->where('expires_at', '>', now())
+            ->where('email', '!=', $validated['email'])
+            ->count();
+
+        app(Billing::class)->assertCanAddMember($organization, $pending);
 
         $plainToken = Str::random(40);
 
@@ -75,6 +94,8 @@ class InvitationController extends Controller
         $organization = $invitation->organization;
 
         if (! $organization->hasMember($user)) {
+            app(Billing::class)->assertCanAddMember($organization);
+
             $organization->members()->attach($user->id, [
                 'role' => $invitation->role,
                 'joined_at' => now(),

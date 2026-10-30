@@ -26,7 +26,7 @@ class PaymentsTable
                     ->sortable(),
                 TextColumn::make('owner_name')
                     ->label('Propietario')
-                    ->getStateUsing(fn (Payment $record): string => $record->subscription->owner->name ?? '—'),
+                    ->getStateUsing(fn (Payment $record): string => $record->subscription?->owner?->name ?? '—'),
                 TextColumn::make('subscription.plan.name')
                     ->label('Plan'),
                 TextColumn::make('amount')
@@ -35,7 +35,7 @@ class PaymentsTable
                     ->sortable(),
                 TextColumn::make('amount_base')
                     ->label('Equivalente')
-                    ->formatStateUsing(fn ($state): string => number_format((float) $state, 2).' USD'),
+                    ->formatStateUsing(fn ($state, Payment $record): string => number_format((float) $state, 2).' '.($record->subscription?->plan?->currency ?? 'USD')),
                 TextColumn::make('method')
                     ->label('Método')
                     ->formatStateUsing(fn (PaymentMethod $state): string => $state->label()),

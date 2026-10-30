@@ -243,6 +243,41 @@ class PaymentTest extends TestCase
             ->assertJsonValidationErrors('payment');
     }
 
+    public function test_payment_in_another_currency_requires_the_exchange_rate(): void
+    {
+        [$user] = $this->pendingSubscription(price: 7.99);
+
+        Sanctum::actingAs($user);
+
+        $this->postJson('/api/billing/payments', [
+            'amount' => 320,
+            'currency' => 'VES',
+            'method' => 'mobile_payment',
+            'paid_on' => '2026-06-15',
+        ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('exchange_rate');
+    }
+
+    public function test_payment_in_the_plan_currency_ignores_a_sent_rate(): void
+    {
+        [$user] = $this->pendingSubscription(price: 7.99);
+
+        Sanctum::actingAs($user);
+
+        $this->postJson('/api/billing/payments', [
+            'amount' => 7.99,
+            'currency' => 'usd',
+            'exchange_rate' => 40,
+            'method' => 'zelle',
+            'paid_on' => '2026-06-15',
+        ])
+            ->assertCreated()
+            ->assertJsonPath('data.currency', 'USD')
+            ->assertJsonPath('data.exchange_rate', '1.0000')
+            ->assertJsonPath('data.amount_base', 7.99);
+    }
+
     /**
      * @return array{0: User, 1: Subscription, 2: Plan}
      */
