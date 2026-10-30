@@ -1,0 +1,22 @@
+# Todo: fleets
+
+- [x] Migración `add_driver_role_and_log_attribution` (rol `driver`, `user_id` en entradas)
+- [x] Migración `rebrand_taller_plan_as_fleet` (Flota $29.99 / Empresa $59.99)
+- [x] `PlanSeeder` con Básico, Familiar, Flota y Empresa
+- [x] `Organization::isManager()` y `Organization::canLog()`
+- [x] `VehiclePolicy::log`; `FuelEntryPolicy`/`MaintenanceRecordPolicy` con autor o gestor
+- [x] `Billing::remainingVehicles()` y límites bloqueantes en el alta
+- [x] `VehicleImport` (CSV: delimitador, BOM, acentos, alias, 500 filas, errores por línea)
+- [x] `POST /api/vehicles/import`
+- [x] `FleetSummary` (gastos, combustible, documentos, mantenimiento vencido, avisos)
+- [x] `GET /api/fleet/summary`
+- [x] Roles `driver` en invitaciones y edición de miembros
+- [x] Tests `tests/Feature/Fleets/`: conductor, importación, resumen, catálogo y propiedad
+- [x] PWA: tipos, `endpoints`, store `fleet` y test
+- [x] PWA: `/flota` con tarjetas en móvil y tabla en escritorio
+- [x] PWA: importador CSV en `/vehiculos`
+- [x] PWA: etiquetas de rol en español y "Registrado por …"
+- [x] Copy de landing sin "talleres"; pricing de 4 planes
+- [x] Verificación: `typecheck`, 48 tests, build, axe 0 violaciones y sin desbordes a 320/390/768/1440
+- [ ] Decidir si el plan Básico limita miembros (`max_members` hoy `null`)
+- [ ] Pasarela de pago y onboarding guiado (fuera de este módulo)

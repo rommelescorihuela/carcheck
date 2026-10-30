@@ -40,7 +40,7 @@ class SubscriptionTest extends TestCase
 
         $this->getJson('/api/billing/plans')
             ->assertOk()
-            ->assertJsonCount(3, 'data')
+            ->assertJsonCount(4, 'data')
             ->assertJsonPath('data.0.code', 'basico')
             ->assertJsonPath('data.0.interval_label', 'Mensual');
     }

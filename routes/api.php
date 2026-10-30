@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BillingController;
 use App\Http\Controllers\Api\DocumentController;
+use App\Http\Controllers\Api\FleetController;
 use App\Http\Controllers\Api\FuelEntryController;
 use App\Http\Controllers\Api\InvitationController;
 use App\Http\Controllers\Api\MaintenancePlanController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\ReminderController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\VehicleController;
+use App\Http\Controllers\Api\VehicleImportController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
@@ -40,6 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('throttle:20,1');
     Route::post('/invitations/{token}/accept', [InvitationController::class, 'accept']);
 
+    Route::post('/vehicles/import', [VehicleImportController::class, 'store']);
     Route::apiResource('vehicles', VehicleController::class);
     Route::post('/vehicles/{vehicle}/photo', [VehicleController::class, 'storePhoto']);
     Route::delete('/vehicles/{vehicle}/photo', [VehicleController::class, 'destroyPhoto']);
@@ -111,4 +114,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/reports/expenses', [ReportController::class, 'expenses']);
     Route::get('/reports/expenses/export', [ReportController::class, 'export']);
+
+    Route::get('/fleet/summary', [FleetController::class, 'summary']);
 });

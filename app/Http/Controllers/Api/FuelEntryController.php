@@ -29,6 +29,7 @@ class FuelEntryController extends Controller
 
         /** @var LengthAwarePaginator<int, FuelEntry> $entries */
         $entries = $vehicle->fuelEntries()
+            ->with('user')
             ->orderByDesc('filled_on')
             ->orderByDesc('odometer_km')
             ->paginate(20);
@@ -40,11 +41,12 @@ class FuelEntryController extends Controller
 
     public function store(Request $request, Vehicle $vehicle): JsonResponse
     {
-        $this->authorize('update', $vehicle);
+        $this->authorize('log', $vehicle);
 
         $validated = $request->validate($this->rules());
 
         $entry = $vehicle->fuelEntries()->create($validated + [
+            'user_id' => $request->user()->id,
             'currency' => $vehicle->owner->currency ?? 'USD',
         ]);
 

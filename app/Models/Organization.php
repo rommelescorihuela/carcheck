@@ -140,6 +140,22 @@ class Organization extends Model
         return $this->roleOf($user) !== null;
     }
 
+    /**
+     * Gestiona el garaje: vehículos, miembros e invitaciones de `driver`/`member`.
+     */
+    public function isManager(User $user): bool
+    {
+        return in_array($this->roleOf($user), ['owner', 'admin'], true);
+    }
+
+    /**
+     * Puede registrar combustible y mantenimiento. El `driver` existe justo para esto.
+     */
+    public function canLog(User $user): bool
+    {
+        return $this->hasMember($user);
+    }
+
     public function roleOf(User $user): ?string
     {
         $key = $user->getKey();

@@ -15,7 +15,8 @@ Historias / criterios de aceptación:
 - Veo la **distancia recorrida** desde la carga anterior y el **rendimiento** (km/l) de la carga.
 - Veo un **resumen**: litros, gasto total, distancia, promedio km/l y costo por km.
 - El odómetro del vehículo se sincroniza al alza con el de la carga.
-- Un miembro de la organización ve las cargas de la org; solo `owner`/`admin` las gestionan.
+- Un miembro de la organización ve las cargas de la org; cualquier miembro (incluido `driver`) las
+  registra y quien la registró puede corregirla.
 
 ## Tech Stack
 
@@ -25,10 +26,11 @@ Historias / criterios de aceptación:
 
 ## Autorización
 
-- **Carga** (vía `VehiclePolicy`): `view` = accesible; `update`/`delete` = gestión
-  (personal dueño; org `owner`/`admin`).
-- `FuelEntryPolicy` **delega en el vehículo**: `view` → accesible; `update`/`delete` → gestionable.
-- Crear una carga exige gestión del vehículo.
+- **Carga** (vía `VehiclePolicy`): `view` = accesible; crear exige `log` (cualquier miembro);
+  `update`/`delete` = autor del registro con `log` o gestión (personal dueño; org `owner`/`admin`).
+- `FuelEntryPolicy` **delega en el vehículo**: `view` → accesible; `update`/`delete` → autor o
+  gestionable.
+- Crear una carga exige `log` sobre el vehículo (miembro de la organización o dueño personal).
 
 ## Contrato de API
 
@@ -52,7 +54,7 @@ Todas bajo `auth:sanctum`.
 
 ### Respuesta
 
-- Con API Resources. Carga: `{ id, vehicle_id, filled_on, odometer_km, liters, unit_price, total,
+- Con API Resources. Carga: `{ id, vehicle_id, recorded_by, filled_on, odometer_km, liters, unit_price, total,
   currency, full_tank, station, notes, distance_km, km_per_liter, cost_per_km, created_at,
   updated_at }`. Listados paginados `{ data, meta, links }`.
 - `fuel-summary`: `{ entries, total_liters, total_cost, distance_km, km_per_liter, cost_per_km,

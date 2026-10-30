@@ -70,7 +70,7 @@ class FuelEntryTest extends TestCase
         ])->assertCreated()->assertJsonPath('data.currency', 'EUR');
     }
 
-    public function test_plain_member_cannot_create_entry(): void
+    public function test_plain_member_can_create_entry_with_attribution(): void
     {
         $organization = Organization::factory()->create();
         $member = User::factory()->create();
@@ -78,6 +78,28 @@ class FuelEntryTest extends TestCase
         $vehicle = Vehicle::factory()->forOrganization($organization)->create();
 
         Sanctum::actingAs($member);
+
+        $this->postJson("/api/vehicles/{$vehicle->id}/fuel-entries", [
+            'filled_on' => '2026-01-15',
+            'odometer_km' => 100,
+            'liters' => 10,
+            'unit_price' => 1,
+        ])
+            ->assertCreated()
+            ->assertJsonPath('data.recorded_by', $member->name);
+
+        $this->assertDatabaseHas('fuel_entries', [
+            'vehicle_id' => $vehicle->id,
+            'user_id' => $member->id,
+        ]);
+    }
+
+    public function test_outsider_cannot_create_entry(): void
+    {
+        $organization = Organization::factory()->create();
+        $vehicle = Vehicle::factory()->forOrganization($organization)->create();
+
+        Sanctum::actingAs(User::factory()->create());
 
         $this->postJson("/api/vehicles/{$vehicle->id}/fuel-entries", [
             'filled_on' => '2026-01-15',

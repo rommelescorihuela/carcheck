@@ -70,7 +70,7 @@ class MaintenanceRecordTest extends TestCase
         ])->assertCreated()->assertJsonPath('data.currency', 'EUR');
     }
 
-    public function test_plain_member_cannot_create_record(): void
+    public function test_plain_member_can_create_record_with_attribution(): void
     {
         $organization = Organization::factory()->create();
         $member = User::factory()->create();
@@ -78,6 +78,26 @@ class MaintenanceRecordTest extends TestCase
         $vehicle = Vehicle::factory()->forOrganization($organization)->create();
 
         Sanctum::actingAs($member);
+
+        $this->postJson("/api/vehicles/{$vehicle->id}/maintenance-records", [
+            'performed_on' => '2026-01-15',
+            'odometer_km' => 100,
+        ])
+            ->assertCreated()
+            ->assertJsonPath('data.recorded_by', $member->name);
+
+        $this->assertDatabaseHas('maintenance_records', [
+            'vehicle_id' => $vehicle->id,
+            'user_id' => $member->id,
+        ]);
+    }
+
+    public function test_outsider_cannot_create_record(): void
+    {
+        $organization = Organization::factory()->create();
+        $vehicle = Vehicle::factory()->forOrganization($organization)->create();
+
+        Sanctum::actingAs(User::factory()->create());
 
         $this->postJson("/api/vehicles/{$vehicle->id}/maintenance-records", [
             'performed_on' => '2026-01-15',

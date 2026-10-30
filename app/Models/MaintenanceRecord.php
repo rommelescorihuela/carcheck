@@ -13,7 +13,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
 #[Fillable([
-    'maintenance_type_id', 'performed_on', 'odometer_km', 'provider', 'notes',
+    'user_id', 'maintenance_type_id', 'performed_on', 'odometer_km', 'provider', 'notes',
     'next_due_km', 'next_due_date', 'currency',
 ])]
 class MaintenanceRecord extends Model implements HasMedia
@@ -45,6 +45,16 @@ class MaintenanceRecord extends Model implements HasMedia
     public function vehicle(): BelongsTo
     {
         return $this->belongsTo(Vehicle::class);
+    }
+
+    /**
+     * Quién registró el servicio. Nulo en registros anteriores a la atribución.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     /**

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
-    'filled_on', 'odometer_km', 'liters', 'unit_price', 'full_tank', 'station', 'notes', 'currency',
+    'user_id', 'filled_on', 'odometer_km', 'liters', 'unit_price', 'full_tank', 'station', 'notes', 'currency',
 ])]
 class FuelEntry extends Model
 {
@@ -44,6 +44,16 @@ class FuelEntry extends Model
     public function vehicle(): BelongsTo
     {
         return $this->belongsTo(Vehicle::class);
+    }
+
+    /**
+     * Quién registró la carga. Nulo en registros anteriores a la atribución.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     /**

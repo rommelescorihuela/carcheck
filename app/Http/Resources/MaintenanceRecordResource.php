@@ -15,6 +15,7 @@ class MaintenanceRecordResource extends JsonResource
         return [
             'id' => $this->id,
             'vehicle_id' => $this->vehicle_id,
+            'recorded_by' => $this->user?->name,
             'maintenance_type_id' => $this->maintenance_type_id,
             'type' => new MaintenanceTypeResource($this->whenLoaded('type')),
             'performed_on' => $this->performed_on?->toDateString(),

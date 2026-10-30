@@ -12,7 +12,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('organization_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->enum('role', ['owner', 'admin', 'member'])->default('member');
+            // `driver` registra combustible y mantenimiento sin administrar la organización.
+            $table->enum('role', ['owner', 'admin', 'member', 'driver'])->default('member');
             $table->timestamp('joined_at')->nullable();
             $table->timestamps();
 

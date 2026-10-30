@@ -28,7 +28,7 @@ class MaintenanceRecordController extends Controller
         $this->authorize('view', $vehicle);
 
         $records = $vehicle->maintenanceRecords()
-            ->with(['items', 'type'])
+            ->with(['items', 'type', 'user'])
             ->latest('performed_on')
             ->paginate(15);
 
@@ -37,7 +37,7 @@ class MaintenanceRecordController extends Controller
 
     public function store(Request $request, Vehicle $vehicle): JsonResponse
     {
-        $this->authorize('update', $vehicle);
+        $this->authorize('log', $vehicle);
 
         $validated = $request->validate($this->rules());
         $this->assertTypeAvailable($request, $validated['maintenance_type_id'] ?? null);
@@ -45,6 +45,7 @@ class MaintenanceRecordController extends Controller
         unset($validated['items']);
 
         $record = $vehicle->maintenanceRecords()->create($validated + [
+            'user_id' => $request->user()->id,
             'currency' => $vehicle->owner->currency ?? 'USD',
         ]);
         $record->items()->createMany($items);

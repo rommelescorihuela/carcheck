@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('organization_id')->constrained()->cascadeOnDelete();
             $table->string('email');
-            $table->enum('role', ['owner', 'admin', 'member'])->default('member');
+            $table->enum('role', ['owner', 'admin', 'member', 'driver'])->default('member');
             $table->string('token')->unique();
             $table->timestamp('expires_at');
             $table->timestamp('accepted_at')->nullable();

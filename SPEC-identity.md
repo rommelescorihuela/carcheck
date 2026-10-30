@@ -15,7 +15,8 @@ Historias / criterios de aceptación:
 - Como visitante me registro con email/contraseña y quedo autenticado (Bearer) en backend y PWA.
 - Como usuario inicio y cierro sesión, y renuevo mi token sin volver a escribir credenciales.
 - Como usuario creo una organización y quedo como `owner`.
-- Como `owner`/`admin` invito por email y asigno un rol al nuevo miembro.
+- Como `owner`/`admin` invito por email y asigno un rol al nuevo miembro (`admin`, `member` o
+  `driver`); solo el `owner` nombra administradores y cambia el propietario.
 - Un usuario puede pertenecer a **varias** organizaciones sin mezclar datos.
 - El sistema resuelve la pregunta "¿puede este usuario acceder a este recurso?" tanto por
   propiedad personal como por pertenencia a la organización dueña.
@@ -61,7 +62,7 @@ Historias / criterios de aceptación:
 
 - `User` — `name`, `email` (único), `password`; `currency` (preferencia, para `reporting`).
 - `Organization` — `name`, `slug`, `owner_id` → `users.id`, `currency`, `timezone`.
-- `organization_user` (pivot) — `organization_id`, `user_id`, `role` enum (`owner|admin|member`), `joined_at`. Índice único `(organization_id, user_id)`.
+- `organization_user` (pivot) — `organization_id`, `user_id`, `role` enum (`owner|admin|member|driver`), `joined_at`. Índice único `(organization_id, user_id)`.
 - `Invitation` — `organization_id`, `email`, `role`, `token` (único, hasheado), `expires_at`, `accepted_at`.
 - **Roles de plataforma** (Filament, vía Shield): `super_admin`, `panel_user`. **Roles de organización** = enum en el pivot (NO usar equipos de Spatie; evita duplicar la tenancy).
 

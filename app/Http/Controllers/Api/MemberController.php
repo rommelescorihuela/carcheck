@@ -34,7 +34,7 @@ class MemberController extends Controller
         $this->authorize('changeRole', $organization);
 
         $validated = $request->validate([
-            'role' => 'required|in:admin,member',
+            'role' => 'required|in:admin,member,driver',
         ]);
 
         if (! $organization->hasMember($user)) {

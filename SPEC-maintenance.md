@@ -17,7 +17,8 @@ Historias / criterios de aceptación:
   **próximo servicio** manualmente en un registro.
 - Veo los **próximos servicios** del vehículo (km/fecha/estado).
 - El odómetro del vehículo se sincroniza al alza con el del registro.
-- Un miembro de la organización ve los mantenimientos de la org; solo `owner`/`admin` los gestionan.
+- Un miembro de la organización ve los mantenimientos de la org; cualquier miembro (incluido
+  `driver`) los registra y quien lo registró puede corregirlos.
 
 ## Tech Stack
 
@@ -32,7 +33,8 @@ Historias / criterios de aceptación:
   (personal dueño; org `owner`/`admin`).
 - **Tipos personalizados**: se gestionan según el ámbito dueño (personal dueño; org `owner`/`admin`).
   Los tipos **globales** (seed) no se editan.
-- `MaintenanceRecordPolicy` **delega en el vehículo**: `view` → accesible; `update`/`delete` → gestionable.
+- `MaintenanceRecordPolicy` **delega en el vehículo**: `view` → accesible; crear exige `log`
+  (cualquier miembro); `update`/`delete` → autor del registro con `log` o gestión del vehículo.
 
 ## Contrato de API
 
@@ -87,8 +89,8 @@ Todas bajo `auth:sanctum`.
 
 ### Respuesta
 
-- Con API Resources. Registro: `{ id, vehicle_id, maintenance_type, performed_on, odometer_km,
-  provider, notes, next_due_km, next_due_date, currency, total, items[], attachments[],
+- Con API Resources. Registro: `{ id, vehicle_id, recorded_by, maintenance_type, performed_on,
+  odometer_km, provider, notes, next_due_km, next_due_date, currency, total, items[], attachments[],
   created_at, updated_at }` (`total` = Σ `quantity × unit_price`). Listados paginados
   `{ data, meta, links }`.
 - `maintenance-due`: `[{ maintenance_type, due_km, due_date, status: "ok"|"soon"|"due", source:
@@ -167,7 +169,7 @@ como string en el cliente (tipo `Decimal`). En el cliente, `import type`.
 
 - Un usuario registra un mantenimiento con ítems y ve el total; el odómetro del vehículo sube.
 - El plan por vehículo y/o el override manual producen un próximo servicio correcto.
-- Un miembro de la organización ve los registros; solo `owner`/`admin` los gestionan.
+- Un miembro de la organización ve los registros; los registra y quien los creó los corrige.
 - Un vehículo ajeno devuelve 403; los tipos globales no se pueden editar.
 - `php artisan test` y `npm run test` en verde; `pint` y `typecheck` limpios.
 

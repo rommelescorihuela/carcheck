@@ -15,6 +15,7 @@ class FuelEntryResource extends JsonResource
         return [
             'id' => $this->id,
             'vehicle_id' => $this->vehicle_id,
+            'recorded_by' => $this->user?->name,
             'filled_on' => $this->filled_on?->toDateString(),
             'odometer_km' => $this->odometer_km,
             'liters' => $this->liters,

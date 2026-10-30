@@ -20,8 +20,9 @@ Este mapa es el índice de specs. Cada módulo tiene su `SPEC-<id>.md` en la ra�
 | `notifications` | Infra de envío: email, push PWA (web-push) y bandeja in-app | `identity` |
 | `reminders` | Recordatorios por km y/o fecha; usa `notifications` | `maintenance`, `documents`, `vehicles`, `notifications` |
 | `reporting` | Gastos por periodo/vehículo, multimoneda | `maintenance`, `fuel`, `billing` |
+| `fleets` | Rol `driver` con atribución, alta masiva por CSV y vista consolidada de la flota; planes Flota/Empresa | `identity`, `vehicles`, `fuel`, `maintenance`, `documents`, `billing` |
 
-**Orden de construcción:** `identity` → `billing`, `vehicles` → `maintenance`, `fuel`, `documents` → `notifications` → `reminders` → `reporting`.
+**Orden de construcción:** `identity` → `billing`, `vehicles` → `maintenance`, `fuel`, `documents` → `notifications` → `reminders` → `reporting` → `fleets`.
 
 ## Decisiones fijadas
 

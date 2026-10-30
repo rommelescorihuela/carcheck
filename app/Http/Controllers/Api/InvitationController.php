@@ -22,7 +22,7 @@ class InvitationController extends Controller
 
         $validated = $request->validate([
             'email' => 'required|string|email|max:255',
-            'role' => 'required|in:admin,member',
+            'role' => 'required|in:admin,member,driver',
         ]);
 
         // Un `admin` no puede nombrar a otro `admin`: el rango lo reparte el propietario.

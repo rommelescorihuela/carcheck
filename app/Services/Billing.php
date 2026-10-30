@@ -147,6 +147,23 @@ class Billing
     }
 
     /**
+     * Hueco disponible para altas masivas: null si el plan no pone tope. Lanza si la
+     * suscripción está vencida, igual que el alta individual.
+     */
+    public function remainingVehicles(User|Organization $owner): ?int
+    {
+        $this->assertAccess($owner);
+
+        $limit = $this->planFor($owner)?->max_vehicles;
+
+        if ($limit === null) {
+            return null;
+        }
+
+        return max(0, $limit - $this->usage($owner)['vehicles']);
+    }
+
+    /**
      * Bloquea invitar o aceptar miembros por encima del plan. `$alreadyPending` son las
      * invitaciones vigentes que todavía no son miembros (también ocupan sitio).
      */

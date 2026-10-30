@@ -16,7 +16,7 @@ class OrganizationFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => 'Taller '.$this->faker->unique()->company(),
+            'name' => 'Flota '.$this->faker->unique()->company(),
             'owner_id' => User::factory(),
             'currency' => 'USD',
             'timezone' => 'America/Caracas',

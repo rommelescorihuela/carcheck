@@ -46,8 +46,9 @@ GitHub Actions (`.github/workflows/tests.yml`): `composer install` → `php arti
   `GET /api/user`; throttles en register/login/refresh. El cliente reintenta el 401 una sola vez.
 - **Tenancy:** no hay DB por tenant. La propiedad se resuelve por `owner_type`/`owner_id`
   (morph a `User` u `Organization`) con el trait `OwnedByUserOrOrganization`. Los roles de
-  organización son un enum en el pivot `organization_user` (`owner|admin|member`); Spatie +
-  Shield se reservan a los roles de plataforma del panel `/admin`.
+  organización son un enum en el pivot `organization_user` (`owner|admin|member|driver`); Spatie +
+  Shield se reservan a los roles de plataforma del panel `/admin`. `owner`/`admin` gestionan el
+  garaje; cualquier miembro (incluido `driver`) registra combustible y mantenimiento (`VehiclePolicy::log`).
 - **Panel:** Filament 5 en `/admin` (`app/Filament/`, autodescubierto por `AdminPanelProvider`).
 
 ## Convenciones de Filament 5

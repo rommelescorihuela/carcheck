@@ -21,14 +21,30 @@ class MaintenanceRecordPolicy
         return true;
     }
 
+    /**
+     * Quien registró el servicio puede corregirlo; el resto necesita administrar el vehículo.
+     */
     public function update(User $user, MaintenanceRecord $record): bool
     {
-        return (new VehiclePolicy)->update($user, $this->vehicleOf($record));
+        return $this->modify($user, $record);
     }
 
     public function delete(User $user, MaintenanceRecord $record): bool
     {
-        return (new VehiclePolicy)->delete($user, $this->vehicleOf($record));
+        return $this->modify($user, $record);
+    }
+
+    private function modify(User $user, MaintenanceRecord $record): bool
+    {
+        $vehicle = $this->vehicleOf($record);
+
+        if ($record->user_id !== null
+            && (int) $record->user_id === $user->getKey()
+            && (new VehiclePolicy)->log($user, $vehicle)) {
+            return true;
+        }
+
+        return (new VehiclePolicy)->update($user, $vehicle);
     }
 
     private function vehicleOf(MaintenanceRecord $record): Vehicle

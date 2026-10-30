@@ -21,14 +21,30 @@ class FuelEntryPolicy
         return true;
     }
 
+    /**
+     * Quien registró la carga puede corregirla; el resto necesita administrar el vehículo.
+     */
     public function update(User $user, FuelEntry $entry): bool
     {
-        return (new VehiclePolicy)->update($user, $this->vehicleOf($entry));
+        return $this->modify($user, $entry);
     }
 
     public function delete(User $user, FuelEntry $entry): bool
     {
-        return (new VehiclePolicy)->delete($user, $this->vehicleOf($entry));
+        return $this->modify($user, $entry);
+    }
+
+    private function modify(User $user, FuelEntry $entry): bool
+    {
+        $vehicle = $this->vehicleOf($entry);
+
+        if ($entry->user_id !== null
+            && (int) $entry->user_id === $user->getKey()
+            && (new VehiclePolicy)->log($user, $vehicle)) {
+            return true;
+        }
+
+        return (new VehiclePolicy)->update($user, $vehicle);
     }
 
     private function vehicleOf(FuelEntry $entry): Vehicle
