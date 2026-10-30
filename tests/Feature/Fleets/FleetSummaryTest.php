@@ -53,9 +53,9 @@ class FleetSummaryTest extends TestCase
 
         Document::factory()->expired()->create(['vehicle_id' => $vehicle->id]);
 
-        // Vehículo fuera del ámbito: no debe sumar.
+        // Carga fuera del periodo: no debe sumar al consolidado.
         $other->fuelEntries()->create([
-            'filled_on' => today()->toDateString(),
+            'filled_on' => now()->subMonths(2)->toDateString(),
             'odometer_km' => 500,
             'liters' => 10,
             'unit_price' => 2,

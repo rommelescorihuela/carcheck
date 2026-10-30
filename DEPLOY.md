@@ -12,9 +12,12 @@ apuntando a `VITE_API_URL`.
 
 ## Requisitos del servidor
 
-- PHP 8.3+ con `pdo_pgsql`, `mbstring`, `openssl`, `fileinfo`, `gd` o `imagick`, `intl`, `zip`.
-- PostgreSQL 14+.
-- Composer 2 y Node.js 22+ **en el servidor de build** (o construir el frontend en CI).
+- PHP 8.3+ con `pdo_pgsql` **o** `pdo_mysql`, `mbstring`, `openssl`, `fileinfo`, `gd` o
+  `imagick`, `intl`, `zip`, `curl` y `dom`.
+- PostgreSQL 14+ **o** MySQL 8 / MariaDB 10.6+. El esquema y la suite completa se prueban en
+  ambos motores.
+- Composer 2 y Node.js 22+ **en el servidor de build**. En hosting compartido sin SSH se usan
+  los ZIP ya construidos (ver [Hosting compartido](#hosting-compartido-cpanel-sin-root)).
 - HTTPS en ambos dominios: la PWA, el service worker y el push lo exigen.
 
 ## Backend: primera instalación
@@ -169,6 +172,179 @@ server {
 
 La PWA se actualiza sola (`registerType: 'autoUpdate'`), pero un `sw.js` cacheado por el
 navegador retrasa la actualización: mantén el `no-cache` de arriba.
+
+## Hosting compartido (cPanel básico, sin root)
+
+No hace falta acceso a Apache ni a la configuración del servidor: todo se resuelve con
+`.htaccess` (cPanel permite `AllowOverride` de serie) y con las herramientas del panel. Tampoco
+hace falta Terminal, Composer ni Node en el servidor: el ZIP `carcheck-backend-shared.zip` ya
+incluye `vendor/` de producción y los assets del panel compilados.
+
+| En un VPS | En cPanel básico |
+|---|---|
+| Nginx/Apache con root | `.htaccess` incluido en el ZIP; no tocas Apache |
+| Worker con systemd | **Cron Jobs** cada 5 min con `queue:work --stop-when-empty` |
+| `crontab -e` / Terminal | **Cron Jobs** del panel (una tarea temporal para instalar) |
+| Composer y npm en el servidor | ZIP con `vendor/` y assets ya construidos |
+| PostgreSQL | MySQL/MariaDB de cPanel (soportado y probado) |
+| `sudo` para permisos | File Manager: `775` en `storage` y `bootstrap/cache` |
+
+### 1. Dónde subir cada cosa
+
+La aplicación va **fuera** de `public_html`; solo su carpeta `public/` se publica:
+
+```text
+/home/USUARIO/
+├── carcheck/                 # backend completo (NO accesible por HTTP)
+│   ├── app/ config/ database/ vendor/ …
+│   ├── public/               # se copia al subdominio, no se sirve desde aquí
+│   ├── storage/              # escritura obligatoria
+│   └── .env
+└── public_html/
+    ├── api/                  # ← contenido de carcheck/public (document root de la API)
+    └── …                     # la PWA, en el dominio principal o en app.tudominio.com
+```
+
+**Opción A — el panel deja elegir document root** (lo ideal): crea `api.tudominio.com` apuntando a
+`/home/USUARIO/carcheck/public`. No copies nada.
+
+**Opción B — cPanel básico con carpeta fija** (lo habitual): crea el subdominio
+`api.tudominio.com` (carpeta `public_html/api`) y copia **el contenido** de `carcheck/public`
+dentro de `public_html/api`. El `index.php` del ZIP compartido localiza la app automáticamente en
+`/home/USUARIO/carcheck`; si la subes a otra ruta, edita la primera línea de `$appPath`.
+
+No subas `carcheck/` dentro de `public_html`: quedarían expuestos `.env`, `storage/` y el código.
+El ZIP incluye un `.htaccess` en la raíz de la app que deniega el acceso directo por si acaso.
+
+### 2. Base de datos MySQL
+
+En **Bases de datos MySQL** de cPanel crea la base y el usuario (cPanel añade el prefijo de la
+cuenta) y asigna el usuario con **todos los privilegios**. Después, en `carcheck/.env`:
+
+```dotenv
+APP_URL=https://api.tudominio.com
+CORS_ALLOWED_ORIGINS=https://tudominio.com
+
+DB_CONNECTION=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_DATABASE=usuario_carcheck
+DB_USERNAME=usuario_carcheck
+DB_PASSWORD=la_clave_de_cpanel
+
+SESSION_SECURE_COOKIE=true
+QUEUE_CONNECTION=database
+```
+
+Copia `env.production` a `carcheck/.env` y cambia también `MAIL_*`, `APP_KEY` (se genera en el
+paso siguiente) y `VAPID_*`. Si el plan ofrece PostgreSQL, usa el bloque comentado de la plantilla.
+
+### 3. Instalar sin Terminal (Cron Jobs)
+
+Añade temporalmente estas variables al `.env` para crear el primer `super_admin`:
+
+```dotenv
+ADMIN_EMAIL=admin@tudominio.com
+ADMIN_PASSWORD=una_clave_larga_y_unica
+ADMIN_NAME=Administrador
+```
+
+En **Cron Jobs** crea una tarea “una vez al día” (se ejecutará en el siguiente minuto) con esta
+línea, cambiando `USUARIO` y la ruta de PHP si tu host usa otra versión:
+
+```bash
+cd /home/USUARIO/carcheck && /opt/cpanel/ea-php83/root/usr/bin/php artisan key:generate --force && /opt/cpanel/ea-php83/root/usr/bin/php artisan migrate --seed --force && ln -sfn /home/USUARIO/carcheck/storage/app/public /home/USUARIO/public_html/api/storage
+```
+
+Qué hace: genera `APP_KEY`, crea las tablas, siembra roles/tipos/planes, crea el administrador y
+publica `storage` en el subdominio. En producción `migrate --seed` **no** crea los usuarios demo
+(`admin@carcheck.test` / `demo@carcheck.test`): solo existen en local y tests.
+
+Cuando termine:
+
+1. Revisa `carcheck/storage/logs/laravel.log` y entra a `https://api.tudominio.com/admin`.
+2. **Borra la tarea de cron.**
+3. **Borra `ADMIN_PASSWORD` del `.env`** (deja `ADMIN_EMAIL` si quieres; no se usa si no hay
+   contraseña).
+4. Cambia la contraseña del administrador desde el panel.
+
+Si el plan no ofrece Cron Jobs ni Terminal, no hay forma de ejecutar migraciones: pide al hosting
+que active una de las dos. No importes un dump a mano salvo que sepas que el esquema está al día.
+
+La ruta real de PHP se ve en **Select PHP Version** o con un `phpinfo()` temporal; suele ser
+`/opt/cpanel/ea-php83/root/usr/bin/php` o `/usr/local/bin/php`.
+
+### 4. Cola y recordatorios con cron
+
+Cola cada 5 minutos:
+
+```bash
+*/5 * * * * /opt/cpanel/ea-php83/root/usr/bin/php /home/USUARIO/carcheck/artisan queue:work --stop-when-empty --tries=3 --max-time=280 >> /home/USUARIO/carcheck/storage/logs/queue.log 2>&1
+```
+
+Scheduler cada minuto (si el plan lo permite):
+
+```bash
+* * * * * /opt/cpanel/ea-php83/root/usr/bin/php /home/USUARIO/carcheck/artisan schedule:run >> /home/USUARIO/carcheck/storage/logs/schedule.log 2>&1
+```
+
+Si el mínimo es de 5 minutos, añade una tarea diaria a las 08:00 con
+`artisan reminders:generate`. Si no hay cron, pon `QUEUE_CONNECTION=sync`: el correo y el push
+salen en la misma petición (más lento y sin reintentos).
+
+### 5. Permisos y límites de PHP
+
+```bash
+find storage bootstrap/cache -type d -exec chmod 775 {} \;
+find storage bootstrap/cache -type f -exec chmod 664 {} \;
+```
+
+Nunca `777`. Los documentos aceptan hasta 10 MB y las fotos 5 MB. Crea
+`carcheck/public/.user.ini` (o en `public_html/api/.user.ini`) si el host usa PHP-FPM:
+
+```ini
+upload_max_filesize = 12M
+post_max_size = 16M
+memory_limit = 256M
+max_execution_time = 120
+```
+
+Comprueba el valor real en **Select PHP Version → Options**.
+
+### 6. La PWA
+
+Sube **el contenido de `carcheck-pwa.zip`** al document root del dominio o subdominio de la app
+(`public_html` o `public_html/app`). Ya incluye `.htaccess` con:
+
+- fallback a `index.html` para `/flota`, `/vehiculos/12`…;
+- `sw.js` y `manifest.webmanifest` sin caché;
+- assets con caché larga.
+
+El build se hace en tu equipo con la URL real de la API:
+
+```bash
+VITE_API_URL=https://api.tudominio.com/api SKIP_INSTALL=1 ./build.sh
+```
+
+Activa **AutoSSL** en ambos dominios: sin HTTPS no hay service worker ni push.
+
+### 7. Actualizar sin Terminal
+
+1. Copia la base de datos y `storage/app/public` desde cPanel.
+2. Sube y extrae el ZIP nuevo del backend sobre `carcheck/` (no incluye `.env`, así que se
+   conserva).
+3. Vuelve a copiar `carcheck/public` a `public_html/api` (el `index.php` y `.htaccess` nuevos).
+4. Ejecuta una tarea de cron temporal:
+   `php artisan migrate --force && php artisan optimize:clear && php artisan optimize`.
+5. Revisa `/up`, el panel y una descarga de CSV.
+
+### Limitaciones reales de un plan compartido
+
+- Sin Redis: cola y caché en base de datos.
+- Sin worker persistente: la cola avanza con el cron; un pico grande tarda.
+- Límites de CPU, memoria y `max_execution_time`: las exportaciones muy grandes pueden cortarse.
+- Sin Git: cada actualización es subir el ZIP y ejecutar migraciones.
+- El correo depende del SMTP del host o de un proveedor externo; el push, de las claves VAPID.
 
 ## Variables que no deben fallar
 
