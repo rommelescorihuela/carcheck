@@ -321,8 +321,9 @@ Sube **el contenido de `carcheck-pwa.zip`** al document root del dominio o subdo
 - `sw.js`, `manifest.webmanifest` y `config.js` sin caché;
 - assets con caché larga.
 
-La URL de la API vive en **`config.js`**, junto a `index.html`. Edítalo en el servidor con File
-Manager y recarga: no hace falta recompilar.
+La URL de la API vive en **`config.js`**, junto a `index.html`. Por defecto está vacío (se usa el
+`VITE_API_URL` compilado); para apuntar a tu dominio edítalo en el servidor con File Manager y
+recarga, sin recompilar:
 
 ```js
 window.__CARCHECK_CONFIG__ = { apiUrl: 'https://api.tudominio.com/api' }
