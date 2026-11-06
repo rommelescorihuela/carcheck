@@ -294,6 +294,13 @@ Qué hace: genera `APP_KEY`, crea las tablas, siembra roles/tipos/planes, crea e
 publica `storage` en el subdominio. En producción `migrate --seed` **no** crea los usuarios demo
 (`admin@carcheck.test` / `demo@carcheck.test`): solo existen en local y tests.
 
+El último `ln -sfn` supone la **opción B** (docroot `public_html/api`). Si usaste la **opción A**, el
+enlace va dentro de la app y la ruta cambia:
+
+```bash
+ln -sfn /home/USUARIO/carcheck/storage/app/public /home/USUARIO/carcheck/public/storage
+```
+
 Cuando termine:
 
 1. Revisa `carcheck/storage/logs/laravel.log` y entra a `https://api.tudominio.com/admin`.
