@@ -193,13 +193,14 @@ incluye `vendor/` de producción y los assets del panel compilados.
 
 | # | Pantalla de cPanel | Qué haces |
 |---|---|---|
-| 1 | **Dominios → Subdominios** | Crear `app.` y `api.` con su carpeta |
-| 2 | **SSL/TLS Status → Run AutoSSL** | HTTPS en los dos subdominios |
-| 3 | **Administrador de archivos** | Subir y extraer los dos ZIP |
-| 4 | **Bases de datos MySQL** | Base + usuario + todos los privilegios |
-| 5 | **Administrador de archivos** | Crear `carcheck/.env` desde `env.production` |
-| 6 | **Trabajos de Cron → Añadir** | Tarea temporal `* * * * *` para instalar; después la de cola |
-| 7 | **Cuentas de correo** | Crear `no-reply@tudominio.com` para el SMTP |
+| 1 | **MultiPHP Manager** | Poner PHP **8.3** en los dos subdominios |
+| 2 | **Dominios → Subdominios** | Crear `app.` y `api.` con su carpeta |
+| 3 | **SSL/TLS Status → Run AutoSSL** | HTTPS en los dos subdominios |
+| 4 | **Administrador de archivos** | Subir y extraer los dos ZIP |
+| 5 | **Bases de datos MySQL** | Base + usuario + todos los privilegios |
+| 6 | **Administrador de archivos** | Crear `carcheck/.env` desde `env.production` |
+| 7 | **Trabajos de Cron → Añadir** | Tarea temporal `* * * * *` para instalar; después la de cola |
+| 8 | **Cuentas de correo** | Crear `no-reply@tudominio.com` para el SMTP |
 
 Ninguna de estas pantallas pide Terminal, Composer, Node ni permisos de root. Dos trampas de
 **Administrador de archivos**: hay que activar **Settings → Show Hidden Files** para ver y editar
