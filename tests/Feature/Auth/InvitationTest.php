@@ -45,6 +45,31 @@ class InvitationTest extends TestCase
         Mail::assertQueued(OrganizationInvitation::class);
     }
 
+    /**
+     * El enlace debe abrir la PWA (su subdominio), no la API.
+     */
+    public function test_invitation_link_points_to_the_pwa(): void
+    {
+        Mail::fake();
+        config(['app.frontend_url' => 'https://app.test']);
+
+        $organization = Organization::factory()->create();
+        Sanctum::actingAs($organization->owner);
+
+        $this->postJson("/api/organizations/{$organization->id}/invitations", [
+            'email' => 'nuevo@example.com',
+            'role' => 'member',
+        ])->assertCreated();
+
+        Mail::assertQueued(
+            OrganizationInvitation::class,
+            fn (OrganizationInvitation $mail): bool => str_starts_with(
+                $mail->acceptUrl,
+                'https://app.test/invitaciones/',
+            ),
+        );
+    }
+
     public function test_plain_member_cannot_invite(): void
     {
         $organization = Organization::factory()->create();

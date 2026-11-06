@@ -10,7 +10,7 @@
 
     @if ($url)
         <p>
-            <a href="{{ rtrim(config('app.url'), '/').'/'.ltrim($url, '/') }}"
+            <a href="{{ rtrim(config('app.frontend_url'), '/').'/'.ltrim($url, '/') }}"
                style="display: inline-block; padding: 10px 18px; background: #0f766e; color: #ffffff; border-radius: 6px; text-decoration: none;">
                 Ver en CarCheck
             </a>

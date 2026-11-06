@@ -13,7 +13,7 @@
     </p>
 
     <p>
-        <a href="{{ config('app.url') }}"
+        <a href="{{ config('app.frontend_url') }}"
            style="display: inline-block; padding: 10px 18px; background: #0f766e; color: #ffffff; border-radius: 6px; text-decoration: none;">
             Entrar a CarCheck
         </a>

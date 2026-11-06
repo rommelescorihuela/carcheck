@@ -189,6 +189,38 @@ incluye `vendor/` de producción y los assets del panel compilados.
 | PostgreSQL | MySQL/MariaDB de cPanel (soportado y probado) |
 | `sudo` para permisos | File Manager: `775` en `storage` y `bootstrap/cache` |
 
+### 0. Dominios: la app en un subdominio
+
+El reparto que funciona en un plan básico son **dos subdominios**, cada uno con su docroot:
+
+| Subdominio | Document root | Qué sirve |
+|---|---|---|
+| `app.tudominio.com` | `/home/USUARIO/carcheck-app` | La PWA (contenido de `carcheck-pwa.zip`) |
+| `api.tudominio.com` | `/home/USUARIO/carcheck/public` | API `/api`, panel `/admin`, `/up` |
+
+La PWA es estática y se compila con rutas absolutas desde la raíz (`/assets/...`,
+`start_url: "/"`, `scope: "/"`), así que **funciona igual en un subdominio sin recompilar**: el
+service worker queda con alcance en ese subdominio y `config.js` resuelve la API.
+
+Lo único que cambia respecto a la raíz del dominio:
+
+```dotenv
+APP_URL=https://api.tudominio.com
+FRONTEND_URL=https://app.tudominio.com          # enlaces de correos e invitaciones
+CORS_ALLOWED_ORIGINS=https://app.tudominio.com   # el origen exacto de la PWA, sin barra final
+SESSION_DOMAIN=null                              # cookie solo de api.tudominio.com
+```
+
+y, en la PWA, `config.js` con `https://api.tudominio.com/api`.
+
+> **Ojo con las carpetas dentro de `public_html`.** Si cPanel no te deja mover el docroot y creas los
+> subdominios en `public_html/app` y `public_html/api`, esos archivos también responden en
+> `https://tudominio.com/app` y `https://tudominio.com/api` (mismo contenido, dos URLs). Si el plan
+> lo permite, saca los docroots fuera de `public_html`; si no, crea los subdominios y añade en
+> `public_html/.htaccess` una regla que redirija `app/` y `api/` a sus subdominios.
+
+Un solo certificado por subdominio: activa **AutoSSL** en ambos.
+
 ### 1. Dónde subir cada cosa
 
 La aplicación va **fuera** de `public_html`; solo su carpeta `public/` se publica:
@@ -197,21 +229,22 @@ La aplicación va **fuera** de `public_html`; solo su carpeta `public/` se publi
 /home/USUARIO/
 ├── carcheck/                 # backend completo (NO accesible por HTTP)
 │   ├── app/ config/ database/ vendor/ …
-│   ├── public/               # se copia al subdominio, no se sirve desde aquí
+│   ├── public/               # ← document root de api.tudominio.com
 │   ├── storage/              # escritura obligatoria
 │   └── .env
-└── public_html/
-    ├── api/                  # ← contenido de carcheck/public (document root de la API)
-    └── …                     # la PWA, en el dominio principal o en app.tudominio.com
+└── carcheck-app/             # ← document root de app.tudominio.com (PWA)
+    ├── index.html
+    ├── assets/ … config.js
+    └── .htaccess
 ```
 
 **Opción A — el panel deja elegir document root** (lo ideal): crea `api.tudominio.com` apuntando a
-`/home/USUARIO/carcheck/public`. No copies nada.
+`/home/USUARIO/carcheck/public` y `app.tudominio.com` a `/home/USUARIO/carcheck-app`. No copies nada.
 
-**Opción B — cPanel básico con carpeta fija** (lo habitual): crea el subdominio
-`api.tudominio.com` (carpeta `public_html/api`) y copia **el contenido** de `carcheck/public`
-dentro de `public_html/api`. El `index.php` del ZIP compartido localiza la app automáticamente en
-`/home/USUARIO/carcheck`; si la subes a otra ruta, edita la primera línea de `$appPath`.
+**Opción B — cPanel básico con carpeta fija** (lo habitual): crea `api.tudominio.com` (carpeta
+`public_html/api`) y copia **el contenido** de `carcheck/public` dentro de `public_html/api`; crea
+`app.tudominio.com` (carpeta `public_html/app`) y sube ahí el contenido de `carcheck-pwa.zip`.
+El `index.php` del ZIP compartido localiza la app automáticamente en `/home/USUARIO/carcheck`.
 
 No subas `carcheck/` dentro de `public_html`: quedarían expuestos `.env`, `storage/` y el código.
 El ZIP incluye un `.htaccess` en la raíz de la app que deniega el acceso directo por si acaso.
@@ -223,7 +256,8 @@ cuenta) y asigna el usuario con **todos los privilegios**. Después, en `carchec
 
 ```dotenv
 APP_URL=https://api.tudominio.com
-CORS_ALLOWED_ORIGINS=https://tudominio.com
+FRONTEND_URL=https://app.tudominio.com
+CORS_ALLOWED_ORIGINS=https://app.tudominio.com
 
 DB_CONNECTION=mysql
 DB_HOST=localhost
@@ -314,12 +348,16 @@ Options**, y comprueba el valor real con un `phpinfo()` temporal.
 
 ### 6. La PWA
 
-Sube **el contenido de `carcheck-pwa.zip`** al document root del dominio o subdominio de la app
-(`public_html` o `public_html/app`). Ya incluye `.htaccess` con:
+Sube **el contenido de `carcheck-pwa.zip`** al document root del subdominio de la app
+(`app.tudominio.com`, normalmente `/home/USUARIO/carcheck-app` o `public_html/app`). Ya incluye
+`.htaccess` con:
 
 - fallback a `index.html` para `/flota`, `/vehiculos/12`…;
 - `sw.js`, `manifest.webmanifest` y `config.js` sin caché;
 - assets con caché larga.
+
+El manifest declara `start_url` y `scope` en `/`, así que la PWA queda instalable como
+`app.tudominio.com` sin tocar nada más.
 
 La URL de la API vive en **`config.js`**, junto a `index.html`. Por defecto está vacío (se usa el
 `VITE_API_URL` compilado); para apuntar a tu dominio edítalo en el servidor con File Manager y
@@ -365,6 +403,7 @@ Activa **AutoSSL** en ambos dominios: sin HTTPS no hay service worker ni push.
 |---|---|
 | `APP_ENV` / `APP_DEBUG` | `production` / `false` |
 | `APP_URL` | URL pública de la API, `https` |
+| `FRONTEND_URL` | `https://app.tudominio.com`: base de los enlaces de invitación y de los avisos por correo |
 | `CORS_ALLOWED_ORIGINS` | origen exacto de la PWA (varios separados por coma) |
 | `SESSION_SECURE_COOKIE` | `true` |
 | `QUEUE_CONNECTION` | `database` (o Redis si se añade) |
