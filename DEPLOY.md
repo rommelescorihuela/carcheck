@@ -189,6 +189,23 @@ incluye `vendor/` de producción y los assets del panel compilados.
 | PostgreSQL | MySQL/MariaDB de cPanel (soportado y probado) |
 | `sudo` para permisos | File Manager: `775` en `storage` y `bootstrap/cache` |
 
+### Ruta rápida: las pantallas del panel
+
+| # | Pantalla de cPanel | Qué haces |
+|---|---|---|
+| 1 | **Dominios → Subdominios** | Crear `app.` y `api.` con su carpeta |
+| 2 | **SSL/TLS Status → Run AutoSSL** | HTTPS en los dos subdominios |
+| 3 | **Administrador de archivos** | Subir y extraer los dos ZIP |
+| 4 | **Bases de datos MySQL** | Base + usuario + todos los privilegios |
+| 5 | **Administrador de archivos** | Crear `carcheck/.env` desde `env.production` |
+| 6 | **Trabajos de Cron → Añadir** | Tarea temporal `* * * * *` para instalar; después la de cola |
+| 7 | **Cuentas de correo** | Crear `no-reply@tudominio.com` para el SMTP |
+
+Ninguna de estas pantallas pide Terminal, Composer, Node ni permisos de root. Dos trampas de
+**Administrador de archivos**: hay que activar **Settings → Show Hidden Files** para ver y editar
+`.htaccess` y `.env`, y el panel **no crea enlaces simbólicos** — por eso el `ln -sfn` de `storage`
+va dentro de la tarea de cron.
+
 ### 0. Dominios: la app en un subdominio
 
 El reparto que funciona en un plan básico son **dos subdominios**, cada uno con su docroot:
@@ -273,6 +290,22 @@ QUEUE_CONNECTION=database
 Copia `env.production` a `carcheck/.env` y cambia también `MAIL_*`, `APP_KEY` (se genera en el
 paso siguiente) y `VAPID_*`. Si el plan ofrece PostgreSQL, usa el bloque comentado de la plantilla.
 
+El correo más simple es el del propio cPanel (**Cuentas de correo**): crea `no-reply@tudominio.com`
+y usa sus datos.
+
+```dotenv
+MAIL_MAILER=smtp
+MAIL_HOST=mail.tudominio.com
+MAIL_PORT=465
+MAIL_SCHEME=ssl
+MAIL_USERNAME=no-reply@tudominio.com
+MAIL_PASSWORD=la_clave_del_buzon
+MAIL_FROM_ADDRESS="no-reply@tudominio.com"
+```
+
+El buzón debe existir antes de probar: con `QUEUE_CONNECTION=database` el envío queda en cola hasta
+que corre el cron de la cola.
+
 ### 3. Instalar sin Terminal (Cron Jobs)
 
 Añade temporalmente estas variables al `.env` para crear el primer `super_admin`:
@@ -283,8 +316,10 @@ ADMIN_PASSWORD=una_clave_larga_y_unica
 ADMIN_NAME=Administrador
 ```
 
-En **Cron Jobs** crea una tarea “una vez al día” (se ejecutará en el siguiente minuto) con esta
-línea, cambiando `USUARIO` y la ruta de PHP si tu host usa otra versión:
+En **Cron Jobs** crea una tarea **temporal** con la opción **“Once Per Minute”** (`* * * * *`), no
+“Once Per Day”: la diaria se ejecuta a medianoche y te obligaría a esperar. Se lanzará en menos de
+un minuto; borra la tarea en cuanto termine. Cambia `USUARIO` y la ruta de PHP si tu host usa otra
+versión:
 
 ```bash
 cd /home/USUARIO/carcheck && /opt/cpanel/ea-php83/root/usr/bin/php artisan key:generate --force && /opt/cpanel/ea-php83/root/usr/bin/php artisan migrate --seed --force && ln -sfn /home/USUARIO/carcheck/storage/app/public /home/USUARIO/public_html/api/storage
