@@ -321,8 +321,9 @@ ADMIN_NAME=Administrador
 
 En **Cron Jobs** crea una tarea **temporal** con la opción **“Once Per Minute”** (`* * * * *`), no
 “Once Per Day”: la diaria se ejecuta a medianoche y te obligaría a esperar. Se lanzará en menos de
-un minuto; borra la tarea en cuanto termine. Cambia `USUARIO` y la ruta de PHP si tu host usa otra
-versión:
+un minuto; borra la tarea en cuanto termine. Antes de lanzarla, ajusta los permisos de la sección 5
+(`storage` y `bootstrap/cache` deben ser escribibles). Cambia `USUARIO` y la ruta de PHP si tu host
+usa otra versión:
 
 ```bash
 cd /home/USUARIO/carcheck && /opt/cpanel/ea-php83/root/usr/bin/php artisan key:generate --force && /opt/cpanel/ea-php83/root/usr/bin/php artisan migrate --seed --force && /opt/cpanel/ea-php83/root/usr/bin/php artisan webpush:vapid && /opt/cpanel/ea-php83/root/usr/bin/php artisan optimize:clear && /opt/cpanel/ea-php83/root/usr/bin/php artisan optimize && ln -sfn /home/USUARIO/carcheck/storage/app/public /home/USUARIO/public_html/api/storage
