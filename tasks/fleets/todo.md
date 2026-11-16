@@ -18,5 +18,5 @@
 - [x] PWA: etiquetas de rol en español y "Registrado por …"
 - [x] Copy de landing sin "talleres"; pricing de 4 planes
 - [x] Verificación: `typecheck`, 48 tests, build, axe 0 violaciones y sin desbordes a 320/390/768/1440
-- [ ] Decidir si el plan Básico limita miembros (`max_members` hoy `null`)
+- [x] Decidir si el plan Básico limita miembros: sí, `max_members = 1` (uso personal)
 - [ ] Pasarela de pago y onboarding guiado (fuera de este módulo)

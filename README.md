@@ -202,14 +202,14 @@ php artisan optimize:clear                          # tras tocar recursos de Fil
 
 ## API
 
-Base: `{APP_URL}/api`. Todas las rutas salvo `register` y `login` requieren
-`Authorization: Bearer <token>`. El token dura 30 días y se renueva con `POST /token/refresh`
-(con throttle propio); el cliente reintenta un 401 **una sola vez**.
+Base: `{APP_URL}/api`. Todas las rutas salvo `register`, `login`, `forgot-password` y
+`reset-password` requieren `Authorization: Bearer <token>`. El token dura 30 días y se renueva con
+`POST /token/refresh` (con throttle propio); el cliente reintenta un 401 **una sola vez**.
 
 | Grupo | Endpoints principales |
 |---|---|
-| Autenticación | `POST /register`, `POST /login`, `POST /logout`, `POST /token/refresh`, `GET /user`, `DELETE /account` |
-| Organizaciones | `GET|POST /organizations`, `GET /organizations/{id}`, miembros en `/organizations/{id}/members` |
+| Autenticación | `POST /register` (con `terms`), `POST /login`, `POST /logout`, `POST /token/refresh`, `GET|PATCH /user`, `PUT /user/password`, `POST /forgot-password`, `POST /reset-password`, `DELETE /account` |
+| Organizaciones | `GET|POST /organizations`, `GET|PATCH|DELETE /organizations/{id}`, `POST /organizations/{id}/transfer`, `DELETE /organizations/{id}/leave`, miembros en `/organizations/{id}/members` |
 | Invitaciones | `POST /organizations/{id}/invitations`, `POST /invitations/{token}/accept` |
 | Vehículos | `apiResource /vehicles`, `POST /vehicles/import`, foto y `POST /vehicles/{id}/transfer` |
 | Mantenimiento | `/maintenance-types`, `/vehicles/{id}/maintenance-plans`, `/vehicles/{id}/maintenance-records`, adjuntos y `maintenance-due` |
