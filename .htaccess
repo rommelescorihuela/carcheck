@@ -1,0 +1,11 @@
+# La raíz del repositorio NO es el docroot.
+# El docroot correcto es `public/` (o `public_html/api` con el contenido de `public/`).
+# Esta regla evita que se sirvan `.git`, `.env`, `vendor/`, `storage/` o el código
+# si el repo se publica por error dentro de `public_html`.
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>
