@@ -33,7 +33,13 @@ php artisan optimize:clear                                     # caché de Filam
 - **Tests: SQLite `:memory:`** y `BCRYPT_ROUNDS=4` (fijado en `phpunit.xml`).
 - `php artisan migrate --seed` crea `admin@carcheck.test` / `password` (super_admin) y `demo@carcheck.test` **solo en `local` y `testing`**. En producción siembra roles/tipos/planes y crea el `super_admin` de `ADMIN_EMAIL` + `ADMIN_PASSWORD` (se borran del `.env` tras instalar).
 - **Correo y push**: dev usa `MAIL_MAILER=log` (no envía de verdad). En producción, email y push se **encolan** (`QUEUE_CONNECTION=database`): hace falta un `queue:work` supervisado y el scheduler (`DEPLOY.md`). El aviso in-app se guarda de inmediato.
-- **Usuarios con soft delete**: `DELETE /api/account` borra la cuenta salvo que el usuario sea `owner` de alguna organización (422 hasta traspasarla). Los tokens expiran a los 30 días (`config/sanctum.php`).
+- **Usuarios con soft delete**: `DELETE /api/account` pide la contraseña, anonimiza el correo
+  (`deleted-<id>@users.invalid`) para que pueda reutilizarse en un registro nuevo, y borra la cuenta
+  salvo que el usuario sea `owner` de alguna organización (422 hasta transferirla o eliminarla). Los
+  tokens expiran a los 30 días (`config/sanctum.php`).
+- **Contraseñas**: `POST /api/forgot-password|reset-password` usan el broker de Laravel y envían el
+  enlace a `FRONTEND_URL/restablecer/<token>?email=…` (encolado). `PATCH /api/user` y
+  `PUT /api/user/password` gestionan el perfil; cambiar la contraseña revoca las demás sesiones.
 
 ## CI
 

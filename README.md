@@ -95,8 +95,8 @@ Reglas que sostienen lo anterior:
 
 | Módulo | Qué incluye |
 |---|---|
-| **Identidad** | Registro, login Sanctum, refresh de token con reintento único en el cliente, cierre de sesión, baja de cuenta con soft delete y protección del `owner`. |
-| **Organizaciones** | Miembros con rol, invitaciones por enlace con caducidad, cambio de propietario, ámbito personal u organizacional. |
+| **Identidad** | Registro con aceptación de términos, login Sanctum, refresh de token con reintento único en el cliente, recuperación de contraseña, perfil (nombre, correo, moneda), cambio de contraseña, cierre de sesión, baja de cuenta con soft delete y protección del `owner`. |
+| **Organizaciones** | Miembros con rol, invitaciones por enlace con caducidad, renombrar, transferir propiedad, salir y eliminar la organización, ámbito personal u organizacional. |
 | **Vehículos** | Marca, modelo, año, placa, VIN, tipo, combustible, odómetro, color, notas, foto y traspaso entre ámbitos. |
 | **Mantenimiento** | Catálogo de tipos, planes por kilometraje y/o tiempo, registros con ítems (repuesto/mano de obra), adjuntos y cálculo de vencimiento. |
 | **Combustible** | Cargas con litros, precio, odómetro y estación; rendimiento km/l, costo por km y detección de saltos de odómetro. |
@@ -176,7 +176,7 @@ composer run dev
 En producción el primer administrador se crea sin seed:
 
 ```bash
-php artisan admin:create admin@tudominio.com --name="Administrador"
+php artisan admin:create admin@carcheck.digitalwebsolution.info --name="Administrador"
 ```
 
 ### Cuentas demo
@@ -282,7 +282,7 @@ php artisan migrate --force
 php artisan db:seed --class=RolesSeeder --force
 php artisan db:seed --class=MaintenanceTypeSeeder --force
 php artisan db:seed --class=PlanSeeder --force
-php artisan admin:create admin@tudominio.com --name="Administrador"
+php artisan admin:create admin@carcheck.digitalwebsolution.info --name="Administrador"
 php artisan storage:link && php artisan optimize
 ```
 
@@ -339,10 +339,11 @@ docs/
 Es un producto completo en su núcleo, con decisiones deliberadas que conviene tener claras:
 
 - **Cobro manual**, sin pasarela: el flujo de comprobante + aprobación es el actual.
-- **Sin recuperación de contraseña ni verificación de correo** en la API; se gestionan desde el
-  panel o por soporte.
-- **Correo y push dependen de infraestructura**: SMTP, claves VAPID, worker y scheduler.
-- **El plan Básico no limita miembros** (`max_members = null`); el tope real está en vehículos.
+- **Verificación de correo** pendiente: el registro no exige confirmar el email; la recuperación de
+  contraseña sí está implementada y usa el enlace de la PWA.
+- **Correo y push dependen de infraestructura**: SMTP, claves VAPID, worker y scheduler. El enlace
+  de recuperación también se encola.
+- **El plan Básico limita a 1 miembro** (`max_members = 1`); Familiar, Flota y Empresa amplían el tope.
 - Los recordatorios se recalculan al ejecutar el scheduler, no en tiempo real.
 
 ## Licencia

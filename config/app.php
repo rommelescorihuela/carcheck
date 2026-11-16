@@ -65,9 +65,13 @@ return [
     | will be used by the PHP date and date-time functions. The timezone
     | is set to "UTC" by default as it is suitable for most use cases.
     |
+    | CarCheck opera en Venezuela: en producción se define
+    | `APP_TIMEZONE=America/Caracas` para que los recordatorios de las 08:00
+    | y los vencimientos usen la fecha local.
+    |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'UTC'),
 
     /*
     |--------------------------------------------------------------------------

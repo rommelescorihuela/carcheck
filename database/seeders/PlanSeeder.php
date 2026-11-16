@@ -13,11 +13,11 @@ class PlanSeeder extends Seeder
             [
                 'code' => 'basico',
                 'name' => 'Básico',
-                'description' => 'Un vehículo y su historial completo.',
+                'description' => 'Un vehículo y su historial completo, para uso personal.',
                 'price' => 3.99,
                 'trial_days' => 14,
                 'max_vehicles' => 1,
-                'max_members' => null,
+                'max_members' => 1,
                 'sort' => 1,
             ],
             [

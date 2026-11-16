@@ -22,9 +22,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:6,1');
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:6,1');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:6,1');
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
+    Route::patch('/user', [AuthController::class, 'updateProfile']);
+    Route::put('/user/password', [AuthController::class, 'updatePassword']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/token/refresh', [AuthController::class, 'refreshToken'])->middleware('throttle:30,1');
 
@@ -33,6 +37,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/organizations', [OrganizationController::class, 'index']);
     Route::post('/organizations', [OrganizationController::class, 'store']);
     Route::get('/organizations/{organization}', [OrganizationController::class, 'show']);
+    Route::patch('/organizations/{organization}', [OrganizationController::class, 'update']);
+    Route::delete('/organizations/{organization}', [OrganizationController::class, 'destroy']);
+    Route::post('/organizations/{organization}/transfer', [OrganizationController::class, 'transfer']);
+    Route::delete('/organizations/{organization}/leave', [OrganizationController::class, 'leave']);
 
     Route::get('/organizations/{organization}/members', [MemberController::class, 'index']);
     Route::patch('/organizations/{organization}/members/{user}', [MemberController::class, 'update']);

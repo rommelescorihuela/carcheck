@@ -39,7 +39,7 @@ php artisan db:seed --class=MaintenanceTypeSeeder --force
 php artisan db:seed --class=PlanSeeder --force
 
 # Primer super administrador del panel.
-php artisan admin:create admin@tudominio.com --name="Administrador"
+php artisan admin:create admin@carcheck.digitalwebsolution.info --name="Administrador"
 
 php artisan storage:link
 ```
@@ -132,7 +132,7 @@ php artisan queue:flush        # solo tras revisar
 cd /var/www/carcheck-app
 
 cp .env.production.example .env.production
-# Ajustar VITE_API_URL (https, sin barra final), p. ej. https://api.tudominio.com/api
+# Ajustar VITE_API_URL (https, sin barra final), p. ej. https://api.carcheck.digitalwebsolution.info/api
 
 npm ci
 npm run build          # Vite carga .env.production y genera dist/
@@ -143,7 +143,7 @@ Publica **el contenido de `dist/`** en el dominio de la PWA. Nginx de referencia
 ```nginx
 server {
     listen 443 ssl;
-    server_name app.tudominio.com;
+    server_name app.carcheck.digitalwebsolution.info;
     root /var/www/carcheck-app/dist;
     index index.html;
 
@@ -186,7 +186,7 @@ incluye `vendor/` de producción y los assets del panel compilados.
 | Worker con systemd | **Cron Jobs** cada 5 min con `queue:work --stop-when-empty` |
 | `crontab -e` / Terminal | **Cron Jobs** del panel (una tarea temporal para instalar) |
 | Composer y npm en el servidor | ZIP con `vendor/` y assets ya construidos |
-| PostgreSQL | MySQL/MariaDB de cPanel (soportado y probado) |
+| PostgreSQL | **Bases de datos PostgreSQL** de cPanel (el nombre lleva el prefijo de la cuenta) |
 | `sudo` para permisos | File Manager: `775` en `storage` y `bootstrap/cache` |
 
 ### Ruta rápida: las pantallas del panel
@@ -197,10 +197,10 @@ incluye `vendor/` de producción y los assets del panel compilados.
 | 2 | **Dominios → Subdominios** | Crear `app.` y `api.` con su carpeta |
 | 3 | **SSL/TLS Status → Run AutoSSL** | HTTPS en los dos subdominios |
 | 4 | **Administrador de archivos** | Subir y extraer los dos ZIP |
-| 5 | **Bases de datos MySQL** | Base + usuario + todos los privilegios |
+| 5 | **Bases de datos PostgreSQL** | Base + usuario + todos los privilegios |
 | 6 | **Administrador de archivos** | Crear `carcheck/.env` desde `env.production` |
 | 7 | **Trabajos de Cron → Añadir** | Tarea temporal `* * * * *` para instalar; después la de cola |
-| 8 | **Cuentas de correo** | Crear `no-reply@tudominio.com` para el SMTP |
+| 8 | **Cuentas de correo** | Crear `no-reply@carcheck.digitalwebsolution.info` para el SMTP |
 
 Ninguna de estas pantallas pide Terminal, Composer, Node ni permisos de root. Dos trampas de
 **Administrador de archivos**: hay que activar **Settings → Show Hidden Files** para ver y editar
@@ -213,8 +213,8 @@ El reparto que funciona en un plan básico son **dos subdominios**, cada uno con
 
 | Subdominio | Document root | Qué sirve |
 |---|---|---|
-| `app.tudominio.com` | `/home/USUARIO/carcheck-app` | La PWA (contenido de `carcheck-pwa.zip`) |
-| `api.tudominio.com` | `/home/USUARIO/carcheck/public` | API `/api`, panel `/admin`, `/up` |
+| `app.carcheck.digitalwebsolution.info` | `/home/USUARIO/carcheck-app` | La PWA (contenido de `carcheck-pwa.zip`) |
+| `api.carcheck.digitalwebsolution.info` | `/home/USUARIO/carcheck/public` | API `/api`, panel `/admin`, `/up` |
 
 La PWA es estática y se compila con rutas absolutas desde la raíz (`/assets/...`,
 `start_url: "/"`, `scope: "/"`), así que **funciona igual en un subdominio sin recompilar**: el
@@ -223,17 +223,17 @@ service worker queda con alcance en ese subdominio y `config.js` resuelve la API
 Lo único que cambia respecto a la raíz del dominio:
 
 ```dotenv
-APP_URL=https://api.tudominio.com
-FRONTEND_URL=https://app.tudominio.com          # enlaces de correos e invitaciones
-CORS_ALLOWED_ORIGINS=https://app.tudominio.com   # el origen exacto de la PWA, sin barra final
-SESSION_DOMAIN=null                              # cookie solo de api.tudominio.com
+APP_URL=https://api.carcheck.digitalwebsolution.info
+FRONTEND_URL=https://app.carcheck.digitalwebsolution.info          # enlaces de correos e invitaciones
+CORS_ALLOWED_ORIGINS=https://app.carcheck.digitalwebsolution.info   # el origen exacto de la PWA, sin barra final
+SESSION_DOMAIN=null                              # cookie solo de api.carcheck.digitalwebsolution.info
 ```
 
-y, en la PWA, `config.js` con `https://api.tudominio.com/api`.
+y, en la PWA, `config.js` con `https://api.carcheck.digitalwebsolution.info/api`.
 
 > **Ojo con las carpetas dentro de `public_html`.** Si cPanel no te deja mover el docroot y creas los
 > subdominios en `public_html/app` y `public_html/api`, esos archivos también responden en
-> `https://tudominio.com/app` y `https://tudominio.com/api` (mismo contenido, dos URLs). Si el plan
+> `https://carcheck.digitalwebsolution.info/app` y `https://carcheck.digitalwebsolution.info/api` (mismo contenido, dos URLs). Si el plan
 > lo permite, saca los docroots fuera de `public_html`; si no, crea los subdominios y añade en
 > `public_html/.htaccess` una regla que redirija `app/` y `api/` a sus subdominios.
 
@@ -247,39 +247,41 @@ La aplicación va **fuera** de `public_html`; solo su carpeta `public/` se publi
 /home/USUARIO/
 ├── carcheck/                 # backend completo (NO accesible por HTTP)
 │   ├── app/ config/ database/ vendor/ …
-│   ├── public/               # ← document root de api.tudominio.com
+│   ├── public/               # ← document root de api.carcheck.digitalwebsolution.info
 │   ├── storage/              # escritura obligatoria
 │   └── .env
-└── carcheck-app/             # ← document root de app.tudominio.com (PWA)
+└── carcheck-app/             # ← document root de app.carcheck.digitalwebsolution.info (PWA)
     ├── index.html
     ├── assets/ … config.js
     └── .htaccess
 ```
 
-**Opción A — el panel deja elegir document root** (lo ideal): crea `api.tudominio.com` apuntando a
-`/home/USUARIO/carcheck/public` y `app.tudominio.com` a `/home/USUARIO/carcheck-app`. No copies nada.
+**Opción A — el panel deja elegir document root** (lo ideal): crea `api.carcheck.digitalwebsolution.info` apuntando a
+`/home/USUARIO/carcheck/public` y `app.carcheck.digitalwebsolution.info` a `/home/USUARIO/carcheck-app`. No copies nada.
 
-**Opción B — cPanel básico con carpeta fija** (lo habitual): crea `api.tudominio.com` (carpeta
+**Opción B — cPanel básico con carpeta fija** (lo habitual): crea `api.carcheck.digitalwebsolution.info` (carpeta
 `public_html/api`) y copia **el contenido** de `carcheck/public` dentro de `public_html/api`; crea
-`app.tudominio.com` (carpeta `public_html/app`) y sube ahí el contenido de `carcheck-pwa.zip`.
+`app.carcheck.digitalwebsolution.info` (carpeta `public_html/app`) y sube ahí el contenido de `carcheck-pwa.zip`.
 El `index.php` del ZIP compartido localiza la app automáticamente en `/home/USUARIO/carcheck`.
 
 No subas `carcheck/` dentro de `public_html`: quedarían expuestos `.env`, `storage/` y el código.
 El ZIP incluye un `.htaccess` en la raíz de la app que deniega el acceso directo por si acaso.
 
-### 2. Base de datos MySQL
+### 2. Base de datos PostgreSQL
 
-En **Bases de datos MySQL** de cPanel crea la base y el usuario (cPanel añade el prefijo de la
-cuenta) y asigna el usuario con **todos los privilegios**. Después, en `carcheck/.env`:
+En **Bases de datos PostgreSQL** de cPanel crea la base y el usuario (cPanel añade el prefijo de la
+cuenta, por ejemplo `usuario_carcheck`) y asigna el usuario con **todos los privilegios**. Después,
+en `carcheck/.env`:
 
 ```dotenv
-APP_URL=https://api.tudominio.com
-FRONTEND_URL=https://app.tudominio.com
-CORS_ALLOWED_ORIGINS=https://app.tudominio.com
+APP_URL=https://api.carcheck.digitalwebsolution.info
+FRONTEND_URL=https://app.carcheck.digitalwebsolution.info
+CORS_ALLOWED_ORIGINS=https://app.carcheck.digitalwebsolution.info
+APP_TIMEZONE=America/Caracas
 
-DB_CONNECTION=mysql
+DB_CONNECTION=pgsql
 DB_HOST=localhost
-DB_PORT=3306
+DB_PORT=5432
 DB_DATABASE=usuario_carcheck
 DB_USERNAME=usuario_carcheck
 DB_PASSWORD=la_clave_de_cpanel
@@ -289,19 +291,19 @@ QUEUE_CONNECTION=database
 ```
 
 Copia `env.production` a `carcheck/.env` y cambia también `MAIL_*`, `APP_KEY` (se genera en el
-paso siguiente) y `VAPID_*`. Si el plan ofrece PostgreSQL, usa el bloque comentado de la plantilla.
+paso siguiente) y `VAPID_*`. El esquema usa columnas `json`, compatibles con PostgreSQL 14+.
 
-El correo más simple es el del propio cPanel (**Cuentas de correo**): crea `no-reply@tudominio.com`
+El correo más simple es el del propio cPanel (**Cuentas de correo**): crea `no-reply@carcheck.digitalwebsolution.info`
 y usa sus datos.
 
 ```dotenv
 MAIL_MAILER=smtp
-MAIL_HOST=mail.tudominio.com
+MAIL_HOST=mail.carcheck.digitalwebsolution.info
 MAIL_PORT=465
 MAIL_SCHEME=ssl
-MAIL_USERNAME=no-reply@tudominio.com
+MAIL_USERNAME=no-reply@carcheck.digitalwebsolution.info
 MAIL_PASSWORD=la_clave_del_buzon
-MAIL_FROM_ADDRESS="no-reply@tudominio.com"
+MAIL_FROM_ADDRESS="no-reply@carcheck.digitalwebsolution.info"
 ```
 
 El buzón debe existir antes de probar: con `QUEUE_CONNECTION=database` el envío queda en cola hasta
@@ -312,7 +314,7 @@ que corre el cron de la cola.
 Añade temporalmente estas variables al `.env` para crear el primer `super_admin`:
 
 ```dotenv
-ADMIN_EMAIL=admin@tudominio.com
+ADMIN_EMAIL=admin@carcheck.digitalwebsolution.info
 ADMIN_PASSWORD=una_clave_larga_y_unica
 ADMIN_NAME=Administrador
 ```
@@ -339,7 +341,7 @@ ln -sfn /home/USUARIO/carcheck/storage/app/public /home/USUARIO/carcheck/public/
 
 Cuando termine:
 
-1. Revisa `carcheck/storage/logs/laravel.log` y entra a `https://api.tudominio.com/admin`.
+1. Revisa `carcheck/storage/logs/laravel.log` y entra a `https://api.carcheck.digitalwebsolution.info/admin`.
 2. **Borra la tarea de cron.**
 3. **Borra `ADMIN_PASSWORD` del `.env`** (deja `ADMIN_EMAIL` si quieres; no se usa si no hay
    contraseña).
@@ -369,6 +371,12 @@ Si el mínimo es de 5 minutos, añade una tarea diaria a las 08:00 con
 `artisan reminders:generate`. Si no hay cron, pon `QUEUE_CONNECTION=sync`: el correo y el push
 salen en la misma petición (más lento y sin reintentos).
 
+La cola también envía el **enlace de recuperación de contraseña**. Sin el cron de la cola, el
+usuario ve el mensaje de “te enviamos un correo” pero el correo nunca sale de `jobs`.
+
+Con `APP_TIMEZONE=America/Caracas`, el `schedule:run` de las 08:00 y los vencimientos usan la
+fecha local de Venezuela.
+
 ### 5. Permisos y límites de PHP
 
 ```bash
@@ -392,7 +400,7 @@ Options**, y comprueba el valor real con un `phpinfo()` temporal.
 ### 6. La PWA
 
 Sube **el contenido de `carcheck-pwa.zip`** al document root del subdominio de la app
-(`app.tudominio.com`, normalmente `/home/USUARIO/carcheck-app` o `public_html/app`). Ya incluye
+(`app.carcheck.digitalwebsolution.info`, normalmente `/home/USUARIO/carcheck-app` o `public_html/app`). Ya incluye
 `.htaccess` con:
 
 - fallback a `index.html` para `/flota`, `/vehiculos/12`…;
@@ -400,20 +408,20 @@ Sube **el contenido de `carcheck-pwa.zip`** al document root del subdominio de l
 - assets con caché larga.
 
 El manifest declara `start_url` y `scope` en `/`, así que la PWA queda instalable como
-`app.tudominio.com` sin tocar nada más.
+`app.carcheck.digitalwebsolution.info` sin tocar nada más.
 
 La URL de la API vive en **`config.js`**, junto a `index.html`. Por defecto está vacío (se usa el
 `VITE_API_URL` compilado); para apuntar a tu dominio edítalo en el servidor con File Manager y
 recarga, sin recompilar:
 
 ```js
-window.__CARCHECK_CONFIG__ = { apiUrl: 'https://api.tudominio.com/api' }
+window.__CARCHECK_CONFIG__ = { apiUrl: 'https://api.carcheck.digitalwebsolution.info/api' }
 ```
 
 Para generar un paquete nuevo con la URL ya incluida (opcional, requiere Node en tu equipo):
 
 ```bash
-SHARED_HOSTING=1 VITE_API_URL=https://api.tudominio.com/api SKIP_INSTALL=1 ./build.sh
+SHARED_HOSTING=1 VITE_API_URL=https://api.carcheck.digitalwebsolution.info/api SKIP_INSTALL=1 ./build.sh
 ```
 
 Activa **AutoSSL** en ambos dominios: sin HTTPS no hay service worker ni push.
@@ -446,9 +454,12 @@ Activa **AutoSSL** en ambos dominios: sin HTTPS no hay service worker ni push.
 |---|---|
 | `APP_ENV` / `APP_DEBUG` | `production` / `false` |
 | `APP_URL` | URL pública de la API, `https` |
-| `FRONTEND_URL` | `https://app.tudominio.com`: base de los enlaces de invitación y de los avisos por correo |
+| `APP_TIMEZONE` | `America/Caracas` |
+| `LOG_STACK` | `daily` (con `LOG_DAILY_DAYS=14`) |
+| `FRONTEND_URL` | `https://app.carcheck.digitalwebsolution.info`: base de los enlaces de invitación, recuperación y avisos |
 | `CORS_ALLOWED_ORIGINS` | origen exacto de la PWA (varios separados por coma) |
 | `SESSION_SECURE_COOKIE` | `true` |
+| `DB_CONNECTION` | `pgsql` |
 | `QUEUE_CONNECTION` | `database` (o Redis si se añade) |
 | `VAPID_SUBJECT` | `https://…` o `mailto:…` del dominio |
 | `MEDIA_DISK` | `public` (los documentos se sirven por `/storage`) |
@@ -465,13 +476,15 @@ Si cambian las claves VAPID, los navegadores deben volver a suscribirse.
 ## Verificación después de desplegar
 
 ```bash
-curl -fsS https://api.tudominio.com/up
+curl -fsS https://api.carcheck.digitalwebsolution.info/up
 php artisan about
 php artisan queue:monitor database:default --max=100
 ```
 
-En la PWA: registrar una cuenta, crear un vehículo, abrir `/reportes`, descargar el CSV y comprobar
-que el panel `/admin` carga con el usuario `super_admin`.
+En la PWA: registrar una cuenta (aceptando términos), crear un vehículo, abrir `/reportes`,
+descargar el CSV, probar «¿Olvidaste tu contraseña?», cambiar la contraseña desde «Mi cuenta»,
+renombrar/transferir/salir de una organización y comprobar que el panel `/admin` carga con el
+usuario `super_admin`.
 
 ## Rollback
 

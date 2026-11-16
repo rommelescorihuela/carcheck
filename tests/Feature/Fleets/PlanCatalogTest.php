@@ -18,6 +18,11 @@ class PlanCatalogTest extends TestCase
 
         $this->assertDatabaseMissing('plans', ['code' => 'taller']);
 
+        $basico = Plan::firstWhere('code', 'basico');
+        $this->assertNotNull($basico);
+        $this->assertSame(1, $basico->max_vehicles);
+        $this->assertSame(1, $basico->max_members);
+
         $flota = Plan::firstWhere('code', 'flota');
         $this->assertNotNull($flota);
         $this->assertSame('Flota', $flota->name);

@@ -19,6 +19,7 @@ class AuthTest extends TestCase
             'email' => 'ana@example.com',
             'password' => 'secret-password',
             'password_confirmation' => 'secret-password',
+            'terms' => true,
         ], $overrides);
     }
 
