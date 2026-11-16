@@ -3,6 +3,7 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\Organization;
+use App\Models\Subscription;
 use App\Models\User;
 use App\Models\Vehicle;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -49,6 +50,7 @@ class OrganizationLifecycleTest extends TestCase
             'owner_type' => $organization->getMorphClass(),
             'owner_id' => $organization->id,
         ]);
+        $subscription = Subscription::factory()->forOrganization($organization)->create();
 
         Sanctum::actingAs($organization->owner);
 
@@ -56,6 +58,7 @@ class OrganizationLifecycleTest extends TestCase
 
         $this->assertDatabaseMissing('organizations', ['id' => $organization->id]);
         $this->assertSoftDeleted('vehicles', ['id' => $vehicle->id]);
+        $this->assertDatabaseHas('subscriptions', ['id' => $subscription->id, 'status' => 'canceled']);
     }
 
     public function test_plain_member_cannot_delete_the_organization(): void

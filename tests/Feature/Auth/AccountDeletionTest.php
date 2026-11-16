@@ -3,6 +3,7 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\Organization;
+use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -104,6 +105,17 @@ class AccountDeletionTest extends TestCase
         $this->deleteJson('/api/account', ['password' => 'password'])->assertOk();
 
         $this->assertSoftDeleted('users', ['id' => $owner->id]);
+    }
+
+    public function test_account_deletion_cancels_the_personal_subscription(): void
+    {
+        $user = User::factory()->create(['password' => 'secret-password']);
+        $subscription = Subscription::factory()->forUser($user)->create();
+        Sanctum::actingAs($user);
+
+        $this->deleteJson('/api/account', ['password' => 'secret-password'])->assertOk();
+
+        $this->assertDatabaseHas('subscriptions', ['id' => $subscription->id, 'status' => 'canceled']);
     }
 
     public function test_owner_can_delete_account_after_deleting_the_organization(): void
