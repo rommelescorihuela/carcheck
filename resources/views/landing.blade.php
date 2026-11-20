@@ -68,7 +68,7 @@
                     </a>
                 </div>
 
-                <dl class="lc-rule mt-10 grid gap-px pt-0 sm:grid-cols-3">
+                <dl class="lc-rule mt-10 hidden gap-px pt-0 sm:grid sm:grid-cols-3">
                     <div class="py-4 pr-4">
                         <dt class="lc-label">SOAT</dt>
                         <dd class="mt-1.5 text-[0.9375rem] font-semibold text-soon">Vence en 12 días</dd>
