@@ -127,7 +127,7 @@
 
                     <div class="flex flex-wrap items-center justify-between gap-2 border-t border-ink/12 bg-ink/[0.03] px-5 py-3">
                         <p class="text-[0.75rem] text-ink/70">Actualizada por Marcos · hace 2 h</p>
-                        <span class="lc-stamp ml-auto">Por vencer</span>
+                        <span class="lc-stamp ml-auto" aria-hidden="true">Por vencer</span>
                     </div>
                 </div>
                 <p class="mt-3 text-right text-[0.75rem] text-ink/70">Ficha de ejemplo con datos ilustrativos.</p>

@@ -58,8 +58,8 @@ entra con 10 px de desplazamiento. Todo se anula bajo `prefers-reduced-motion`.
 ## Accesibilidad
 
 Foco visible de 2 px navy con offset 3 px; skip link; contraste mínimo 4.5:1 (secundarios a
-70 % de ink sobre papel ≈ 5.9:1); tablas con `caption` y `scope`; el odontograma y los sellos
-llevan texto alternativo o `aria-hidden` cuando duplican información.
+70 % de ink sobre papel ≈ 5.9:1); tablas con `caption` y `scope`; la barra de intervalo lleva etiqueta
+accesible y el sello es `aria-hidden` porque duplica el texto del estado.
 
 ## Assets
 
