@@ -3,8 +3,11 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Widgets\BillingOverview;
+use App\Filament\Widgets\FlotaPorOrganizacion;
 use App\Filament\Widgets\PlatformOverview;
+use App\Filament\Widgets\UltimosVehiculos;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -12,8 +15,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
+use Filament\Support\Enums\Width;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -36,13 +38,25 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(asset('brand/carcheck-mark.svg'))
             ->font('Outfit')
             ->darkMode(true)
-            ->defaultThemeMode(\Filament\Enums\ThemeMode::Dark)
+            ->defaultThemeMode(ThemeMode::Dark)
             ->spa()
             ->sidebarCollapsibleOnDesktop()
-            ->maxContentWidth(\Filament\Support\Enums\Width::Full)
+            ->maxContentWidth(Width::Full)
             ->colors([
                 // Mismo azul profundo que la PWA y la landing.
-                'primary' => Color::hex('#1d4a70'),
+                'primary' => [
+                    50 => '#eaf1f7',
+                    100 => '#d3e2ef',
+                    200 => '#a8c5df',
+                    300 => '#77a2c8',
+                    400 => '#4a7ca9',
+                    500 => '#2f5f8b',
+                    600 => '#1d4a70',
+                    700 => '#183e5d',
+                    800 => '#14334c',
+                    900 => '#0f283b',
+                    950 => '#081723',
+                ],
             ])
             ->navigationGroups([
                 'Gestión',
@@ -55,9 +69,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                AccountWidget::class,
                 PlatformOverview::class,
                 BillingOverview::class,
+                FlotaPorOrganizacion::class,
+                UltimosVehiculos::class,
             ])
             ->middleware([
                 EncryptCookies::class,
