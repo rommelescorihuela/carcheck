@@ -40,7 +40,7 @@
             <a href="#como-funciona" class="lc-navlink text-ink/75 transition-colors hover:text-ink">Cómo funciona</a>
             <a href="#flotas" class="lc-navlink text-ink/75 transition-colors hover:text-ink">Flotas</a>
             <a href="#planes" class="lc-navlink text-ink/75 transition-colors hover:text-ink">Planes</a>
-            <a href="{{ url('/admin/login') }}" class="lc-btn lc-btn-ghost !min-h-10 !px-4 !text-sm">Ya tengo cuenta</a>
+            <a href="{{ url('/admin/login') }}" class="lc-btn lc-btn-ghost !px-4 !text-sm">Ya tengo cuenta</a>
             <a href="#acceso" class="lc-btn lc-btn-primary !px-4 !text-sm">Solicitar acceso</a>
         </nav>
 
