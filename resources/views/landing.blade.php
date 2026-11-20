@@ -40,12 +40,11 @@
             <a href="#como-funciona" class="lc-navlink text-ink/75 transition-colors hover:text-ink">Cómo funciona</a>
             <a href="#flotas" class="lc-navlink text-ink/75 transition-colors hover:text-ink">Flotas</a>
             <a href="#planes" class="lc-navlink text-ink/75 transition-colors hover:text-ink">Planes</a>
-            <a href="{{ url('/admin/login') }}" class="lc-btn lc-btn-ghost !px-4 !text-sm">Ya tengo cuenta</a>
+            <a href="{{ config('app.frontend_url') }}" class="lc-btn lc-btn-ghost !px-4 !text-sm">Entrar a la app</a>
             <a href="#acceso" class="lc-btn lc-btn-primary !px-4 !text-sm">Solicitar acceso</a>
         </nav>
 
         <div class="flex items-center gap-2 md:hidden">
-            <a href="#acceso" class="lc-btn lc-btn-primary !px-3.5 !text-sm">Solicitar acceso</a>
             <details class="lc-menu">
                 <summary class="lc-menu-toggle" aria-label="Abrir menú">
                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
@@ -53,10 +52,11 @@
                     </svg>
                 </summary>
                 <nav class="lc-menu-panel" aria-label="Secciones">
+                    <a href="#acceso"><strong>Solicitar acceso</strong></a>
                     <a href="#como-funciona">Cómo funciona</a>
                     <a href="#flotas">Flotas</a>
                     <a href="#planes">Planes</a>
-                    <a href="{{ url('/admin/login') }}">Ya tengo cuenta</a>
+                    <a href="{{ config('app.frontend_url') }}">Entrar a la app</a>
                 </nav>
             </details>
         </div>
@@ -143,7 +143,7 @@
 
                     <div class="flex flex-col items-start gap-2 border-t border-ink/12 bg-ink/[0.03] px-5 py-3">
                         <p class="text-[0.75rem] text-ink/70">Actualizada por Marcos · hace 2 h</p>
-                        <span class="lc-stamp self-end" aria-hidden="true">1 vencido · 1 por vencer</span>
+                        <span class="lc-stamp self-end" data-alert="true" aria-hidden="true">1 vencido · 1 por vencer</span>
                     </div>
                 </div>
                 <p class="mt-3 text-right text-[0.75rem] text-ink/70">Ficha de ejemplo con datos ilustrativos.</p>
@@ -250,7 +250,7 @@
                         El conductor registra. El dueño decide.
                     </h2>
                     <p class="mt-4 max-w-[38ch] text-[0.9375rem] leading-[1.65] text-ink/70">
-                        Los permisos se aplican por organización: el conductor registra, el dueño decide.
+                        Cada organización decide quién ve todo y quién solo carga sus datos.
                     </p>
                 </div>
 
@@ -352,6 +352,7 @@
 
             <p class="mt-5 text-[0.8125rem] text-ink/70">
                 Precios publicados en el sistema. El alta de la cuenta la hace el equipo de CarCheck.
+                «—» significa que el plan no comparte el garaje.
             </p>
         </section>
 
@@ -369,8 +370,8 @@
                         </p>
                     </div>
                     <ul class="space-y-2 text-[0.875rem] text-white/80">
-                        <li>14 días de prueba en todos los planes</li>
-                        <li>Sin tarjeta para empezar</li>
+                        <li>14 días de prueba desde el alta</li>
+                        <li>El alta la coordina el equipo</li>
                         <li>Respondemos de lunes a viernes</li>
                     </ul>
                 </div>
@@ -380,55 +381,60 @@
                         <div role="status" class="flex h-full flex-col justify-center">
                             <p class="lc-label">Solicitud recibida</p>
                             <p class="mt-2 max-w-[40ch] text-[1.125rem] leading-[1.5]">
-                                Gracias. Te escribimos al correo que dejaste para darte de alta y
-                                cargar el primer vehículo contigo.
+                                Gracias. Te escribimos al correo que dejaste en un día hábil para darte
+                                de alta y cargar el primer vehículo contigo.
                             </p>
                         </div>
                     @else
-                        <form method="POST" action="{{ route('access-request.store') }}" class="grid gap-4 sm:grid-cols-2">
+                        <form method="POST" action="{{ route('access-request.store') }}" class="grid gap-4 sm:grid-cols-2" novalidate>
                             @csrf
                             <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true">
 
                             <div class="sm:col-span-2">
                                 <label for="name" class="lc-label">Nombre</label>
                                 <input id="name" name="name" type="text" required autocomplete="name"
-                                       value="{{ old('name') }}" class="lc-field mt-1.5" @error('name') aria-invalid="true" @enderror>
-                                @error('name') <p class="lc-error">{{ $message }}</p> @enderror
+                                       value="{{ old('name') }}" class="lc-field mt-1.5"
+                                       @error('name') aria-invalid="true" aria-describedby="name-error" @enderror>
+                                @error('name') <p id="name-error" role="alert" class="lc-error">{{ $message }}</p> @enderror
                             </div>
 
                             <div>
                                 <label for="email" class="lc-label">Correo</label>
                                 <input id="email" name="email" type="email" required autocomplete="email"
-                                       value="{{ old('email') }}" class="lc-field mt-1.5" @error('email') aria-invalid="true" @enderror>
-                                @error('email') <p class="lc-error">{{ $message }}</p> @enderror
+                                       value="{{ old('email') }}" class="lc-field mt-1.5"
+                                       @error('email') aria-invalid="true" aria-describedby="email-error" @enderror>
+                                @error('email') <p id="email-error" role="alert" class="lc-error">{{ $message }}</p> @enderror
                             </div>
 
                             <div>
-                                <label for="company" class="lc-label">Empresa o garaje</label>
-                                <input id="company" name="company" type="text" required autocomplete="organization"
-                                       value="{{ old('company') }}" class="lc-field mt-1.5" @error('company') aria-invalid="true" @enderror>
-                                @error('company') <p class="lc-error">{{ $message }}</p> @enderror
+                                <label for="company" class="lc-label">Tu garaje o empresa (opcional)</label>
+                                <input id="company" name="company" type="text" autocomplete="organization"
+                                       value="{{ old('company') }}" class="lc-field mt-1.5"
+                                       @error('company') aria-invalid="true" aria-describedby="company-error" @enderror>
+                                @error('company') <p id="company-error" role="alert" class="lc-error">{{ $message }}</p> @enderror
                             </div>
 
                             <div>
                                 <label for="fleet" class="lc-label">Vehículos</label>
-                                <select id="fleet" name="fleet" class="lc-field mt-1.5">
-                                    <option value="">Elegir…</option>
-                                    @foreach (['1', '2 a 5', '6 a 25', '26 a 75', 'Más de 75'] as $opcion)
-                                        <option value="{{ $opcion }}" @selected(old('fleet') === $opcion)>{{ $opcion }}</option>
+                                <select id="fleet" name="fleet" class="lc-field mt-1.5" required
+                                        @error('fleet') aria-invalid="true" aria-describedby="fleet-error" @enderror>
+                                    @foreach (['1', '2 a 5', '6 a 25', '26 a 75', 'Aún no lo sé'] as $opcion)
+                                        <option value="{{ $opcion }}" @selected(old('fleet', '1') === $opcion)>{{ $opcion }}</option>
                                     @endforeach
                                 </select>
+                                @error('fleet') <p id="fleet-error" role="alert" class="lc-error">{{ $message }}</p> @enderror
                             </div>
 
                             <div class="sm:col-span-2">
                                 <label for="message" class="lc-label">Qué necesitas (opcional)</label>
-                                <textarea id="message" name="message" rows="3" class="lc-field mt-1.5">{{ old('message') }}</textarea>
-                                @error('message') <p class="lc-error">{{ $message }}</p> @enderror
+                                <textarea id="message" name="message" rows="3" class="lc-field mt-1.5"
+                                          @error('message') aria-invalid="true" aria-describedby="message-error" @enderror>{{ old('message') }}</textarea>
+                                @error('message') <p id="message-error" role="alert" class="lc-error">{{ $message }}</p> @enderror
                             </div>
 
                             <div class="flex flex-wrap items-center gap-4 sm:col-span-2">
-                                <button type="submit" class="lc-btn lc-btn-primary">Enviar solicitud</button>
-                                <p class="text-[0.75rem] text-ink/70">Sin tarjeta. Te escribimos antes de dar de alta nada.</p>
+                                <button type="submit" class="lc-btn lc-btn-primary">Solicitar acceso</button>
+                                <p class="text-[0.75rem] text-ink/70">Solo usamos tus datos para contactarte. No los compartimos.</p>
                             </div>
                         </form>
                     @endif
@@ -442,10 +448,43 @@
             <p>CarCheck · mantenimiento y documentos por vehículo</p>
             <nav class="flex items-center gap-5" aria-label="Pie de página">
                 <a href="#planes" class="lc-footerlink transition-colors hover:text-ink">Planes</a>
-                <a href="{{ url('/admin/login') }}" class="lc-footerlink transition-colors hover:text-ink">Ya tengo cuenta</a>
+                <a href="{{ config('app.frontend_url') }}" class="lc-footerlink transition-colors hover:text-ink">Entrar a la app</a>
                 <span>{{ date('Y') }}</span>
             </nav>
         </div>
     </footer>
+
+    <script>
+        (() => {
+            const menus = document.querySelectorAll('details.lc-menu');
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key !== 'Escape') return;
+                menus.forEach((menu) => menu.open && menu.removeAttribute('open'));
+            });
+
+            document.addEventListener('pointerdown', (event) => {
+                menus.forEach((menu) => {
+                    if (menu.open && !menu.contains(event.target)) menu.removeAttribute('open');
+                });
+            });
+
+            menus.forEach((menu) => menu.querySelectorAll('a').forEach((link) => {
+                link.addEventListener('click', () => menu.removeAttribute('open'));
+            }));
+        })();
+    </script>
+
+    @if ($errors->any())
+        <script>
+            (() => {
+                const section = document.getElementById('acceso');
+                const firstInvalid = document.querySelector('#acceso [aria-invalid="true"]');
+
+                section?.scrollIntoView({ block: 'start' });
+                firstInvalid?.focus({ preventScroll: true });
+            })();
+        </script>
+    @endif
 </body>
 </html>

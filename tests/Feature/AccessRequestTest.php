@@ -43,7 +43,7 @@ class AccessRequestTest extends TestCase
         Mail::fake();
 
         $this->post('/solicitar-acceso', ['name' => '', 'email' => 'no-es-correo'])
-            ->assertSessionHasErrors(['name', 'email', 'company']);
+            ->assertSessionHasErrors(['name', 'email', 'fleet']);
 
         Mail::assertNothingSent();
     }

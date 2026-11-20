@@ -6,6 +6,7 @@ use App\Mail\AccessRequestReceived;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 
 class AccessRequestController extends Controller
 {
@@ -16,13 +17,27 @@ class AccessRequestController extends Controller
             return back()->with('access_request_sent', true);
         }
 
-        $data = $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:180'],
-            'company' => ['required', 'string', 'max:160'],
-            'fleet' => ['nullable', 'string', 'max:40'],
+            'company' => ['nullable', 'string', 'max:160'],
+            'fleet' => ['required', 'string', 'max:40'],
             'message' => ['nullable', 'string', 'max:1000'],
+        ], [
+            'required' => 'Completa este campo.',
+            'email' => 'Escribe un correo válido.',
+            'max' => 'Es demasiado largo.',
         ]);
+
+        if ($validator->fails()) {
+            return redirect()
+                ->to(url('/').'#acceso')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $data = $validator->validated();
+        $data['company'] = $data['company'] ?: 'Sin empresa';
 
         $destination = config('mail.contact_address') ?: config('mail.from.address');
 
