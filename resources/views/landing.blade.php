@@ -9,7 +9,8 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="CarCheck — El auto avisa antes de romperse">
     <meta property="og:description" content="Historial, documentos y próximo mantenimiento por vehículo. Avisos antes del vencimiento.">
-    <meta property="og:locale" content="es_ES">
+    <meta property="og:locale" content="es_LA">
+    <meta property="og:image" content="{{ asset('og.png') }}">
     <link rel="icon" href="{{ asset('brand/carcheck-mark.svg') }}" type="image/svg+xml">
     @vite('resources/css/app.css')
 </head>
@@ -19,7 +20,7 @@
     </a>
 
     <header class="lc-wrap flex items-center justify-between gap-6 py-5">
-        <a href="/" class="flex items-center gap-2.5" aria-label="CarCheck, inicio">
+        <a href="/" class="flex min-h-9 items-center gap-2.5" aria-label="CarCheck, inicio">
             <svg width="34" height="34" viewBox="0 0 96 96" aria-hidden="true" focusable="false">
                 <rect width="96" height="96" rx="22" fill="#1d4a70"/>
                 <g fill="none" stroke="#f6f7f8" stroke-width="5" stroke-linecap="round">
@@ -35,14 +36,30 @@
             <span class="text-[1.0625rem] font-bold tracking-[-0.02em]">CarCheck</span>
         </a>
 
-        <nav class="hidden items-center gap-7 text-[0.9375rem] md:flex" aria-label="Secciones">
-            <a href="#como-funciona" class="text-ink/70 transition-colors hover:text-ink">Cómo funciona</a>
-            <a href="#flotas" class="text-ink/70 transition-colors hover:text-ink">Flotas</a>
-            <a href="#planes" class="text-ink/70 transition-colors hover:text-ink">Planes</a>
-            <a href="{{ url('/admin/login') }}" class="lc-btn lc-btn-primary !min-h-10 !px-4 !text-sm">Entrar</a>
+        <nav class="hidden items-center gap-6 text-[0.9375rem] md:flex" aria-label="Secciones">
+            <a href="#como-funciona" class="lc-navlink text-ink/75 transition-colors hover:text-ink">Cómo funciona</a>
+            <a href="#flotas" class="lc-navlink text-ink/75 transition-colors hover:text-ink">Flotas</a>
+            <a href="#planes" class="lc-navlink text-ink/75 transition-colors hover:text-ink">Planes</a>
+            <a href="{{ url('/admin/login') }}" class="lc-btn lc-btn-ghost !min-h-10 !px-4 !text-sm">Ya tengo cuenta</a>
+            <a href="#acceso" class="lc-btn lc-btn-primary !px-4 !text-sm">Solicitar acceso</a>
         </nav>
 
-        <a href="{{ url('/admin/login') }}" class="lc-btn lc-btn-primary !min-h-10 !px-4 !text-sm md:hidden">Entrar</a>
+        <div class="flex items-center gap-2 md:hidden">
+            <a href="#acceso" class="lc-btn lc-btn-primary !px-3.5 !text-sm">Solicitar acceso</a>
+            <details class="lc-menu">
+                <summary class="lc-menu-toggle" aria-label="Abrir menú">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                        <path d="M3 5h12M3 9h12M3 13h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                </summary>
+                <nav class="lc-menu-panel" aria-label="Secciones">
+                    <a href="#como-funciona">Cómo funciona</a>
+                    <a href="#flotas">Flotas</a>
+                    <a href="#planes">Planes</a>
+                    <a href="{{ url('/admin/login') }}">Ya tengo cuenta</a>
+                </nav>
+            </details>
+        </div>
     </header>
 
     <main id="contenido">
@@ -59,7 +76,7 @@
                 </p>
 
                 <div class="lc-reveal mt-8 flex flex-wrap items-center gap-3">
-                    <a href="{{ url('/admin/login') }}" class="lc-btn lc-btn-primary">Entrar al panel</a>
+                    <a href="#acceso" class="lc-btn lc-btn-primary">Solicitar acceso</a>
                     <a href="#planes" class="lc-btn lc-btn-ghost">
                         Ver planes
                         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -70,33 +87,32 @@
 
                 <dl class="lc-rule mt-10 hidden gap-px pt-0 sm:grid sm:grid-cols-3">
                     <div class="py-4 pr-4">
-                        <dt class="lc-label">SOAT</dt>
-                        <dd class="mt-1.5 text-[0.9375rem] font-semibold text-soon">Vence en 12 días</dd>
+                        <dt class="lc-label">Un solo historial</dt>
+                        <dd class="mt-1.5 text-[0.9375rem] text-ink/85">Documentos y services juntos</dd>
                     </div>
                     <div class="py-4 pr-4 sm:border-l sm:border-ink/12 sm:pl-4">
-                        <dt class="lc-label">Aceite y filtros</dt>
-                        <dd class="mt-1.5 text-[0.9375rem] font-semibold text-soon">Faltan 1.240 km</dd>
+                        <dt class="lc-label">Permisos por rol</dt>
+                        <dd class="mt-1.5 text-[0.9375rem] text-ink/85">El conductor solo registra</dd>
                     </div>
                     <div class="py-4 pr-4 sm:border-l sm:border-ink/12 sm:pl-4">
-                        <dt class="lc-label">Revisión técnica</dt>
-                        <dd class="mt-1.5 text-[0.9375rem] font-semibold text-navy">Al día</dd>
+                        <dt class="lc-label">Avisos</dt>
+                        <dd class="mt-1.5 text-[0.9375rem] text-ink/85">Correo, push y panel</dd>
                     </div>
-            </dl>
+                </dl>
             </div>
 
             <aside class="lg:col-span-5 lg:col-start-8" aria-labelledby="ficha-titulo">
                 <div class="lc-sheet lc-reveal lc-reveal-2 overflow-hidden">
                     <div class="flex items-center justify-between gap-3 border-b border-ink/12 px-5 py-4">
-                        <div class="flex items-center gap-3">
+                        <div class="flex min-w-0 items-center gap-3">
                             <span class="lc-plate">AA 123 BC</span>
-                            <span id="ficha-titulo" class="text-sm font-semibold">Toyota Hilux · 2021</span>
+                            <span id="ficha-titulo" class="truncate text-sm font-semibold">Toyota Hilux · 2021</span>
                         </div>
-                        <span class="text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-ink/70">Ficha</span>
                     </div>
 
                     <div class="px-5 pb-4 pt-5">
                         <p class="lc-label">Odómetro</p>
-                        <p class="mt-1 text-[2.5rem] font-bold leading-none tracking-[-0.035em]">128.450<span class="ml-1.5 text-base font-semibold text-ink/70">km</span></p>
+                        <p class="mt-1 text-[2.5rem] font-bold leading-none tracking-[-0.035em]">128.450<span class="ml-1.5 text-base font-semibold text-ink/75">km</span></p>
                     </div>
 
                     <div class="border-t border-ink/12 px-5 py-4">
@@ -125,14 +141,13 @@
                         </li>
                     </ul>
 
-                    <div class="flex flex-wrap items-center justify-between gap-2 border-t border-ink/12 bg-ink/[0.03] px-5 py-3">
+                    <div class="flex flex-col items-start gap-2 border-t border-ink/12 bg-ink/[0.03] px-5 py-3">
                         <p class="text-[0.75rem] text-ink/70">Actualizada por Marcos · hace 2 h</p>
-                        <span class="lc-stamp ml-auto" aria-hidden="true">Por vencer</span>
+                        <span class="lc-stamp self-end" aria-hidden="true">1 vencido · 1 por vencer</span>
                     </div>
                 </div>
                 <p class="mt-3 text-right text-[0.75rem] text-ink/70">Ficha de ejemplo con datos ilustrativos.</p>
             </aside>
-
         </section>
 
         {{-- El problema, contado como registro y no como tarjetas --}}
@@ -240,7 +255,7 @@
                 </div>
 
                 <div class="lg:col-span-8">
-                    <table class="lc-table">
+                    <table class="lc-table lc-table-stack">
                         <caption class="sr-only">Roles y permisos por organización</caption>
                         <thead>
                             <tr>
@@ -251,19 +266,19 @@
                         <tbody>
                             <tr>
                                 <th scope="row" class="font-semibold">Dueño</th>
-                                <td class="text-ink/70">Gestiona el garaje, el plan y las personas. Transfiere la organización.</td>
+                                <td class="text-ink/70" data-label="Puede hacer">Gestiona el garaje, el plan y las personas. Transfiere la organización.</td>
                             </tr>
                             <tr>
                                 <th scope="row" class="font-semibold">Administrador</th>
-                                <td class="text-ink/70">Agrega vehículos y personas, y ve todo el historial.</td>
+                                <td class="text-ink/70" data-label="Puede hacer">Agrega vehículos y personas, y ve todo el historial.</td>
                             </tr>
                             <tr>
                                 <th scope="row" class="font-semibold">Miembro</th>
-                                <td class="text-ink/70">Registra mantenimiento y combustible de cualquier vehículo.</td>
+                                <td class="text-ink/70" data-label="Puede hacer">Registra mantenimiento y combustible de cualquier vehículo.</td>
                             </tr>
                             <tr>
                                 <th scope="row" class="font-semibold">Conductor</th>
-                                <td class="text-ink/70">Solo registra sus cargas. No cambia la configuración ni los planes.</td>
+                                <td class="text-ink/70" data-label="Puede hacer">Solo registra sus cargas. No cambia la configuración ni los planes.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -271,7 +286,7 @@
             </div>
         </section>
 
-        {{-- Planes: tarifario del taller, no tarjetas de SaaS --}}
+        {{-- Planes: mismo vocabulario y mismas columnas para poder comparar --}}
         <section id="planes" class="lc-wrap py-16 lg:py-24" aria-labelledby="planes-titulo">
             <div class="grid gap-6 lg:grid-cols-12 lg:items-end">
                 <div class="lg:col-span-7">
@@ -285,78 +300,138 @@
                 <p class="text-[0.8125rem] text-ink/70 lg:col-span-5 lg:text-right">USD · facturación mensual</p>
             </div>
 
-            <div class="mt-8 border-t border-ink/16">
-                <div class="grid gap-x-6 gap-y-2 border-b border-ink/12 py-5 sm:grid-cols-12 sm:items-baseline">
-                    <div class="sm:col-span-5">
-                        <h3 class="text-[1rem] font-semibold">Básico</h3>
-                        <p class="mt-0.5 text-[0.875rem] leading-[1.5] text-ink/70">Un vehículo y su historial completo.</p>
-                    </div>
-                    <p class="text-[0.875rem] text-ink/70 sm:col-span-3">1 vehículo · 1 persona</p>
-                    <p class="text-[0.875rem] text-ink/70 sm:col-span-2">Recordatorios por correo</p>
-                    <p class="text-[1.375rem] font-bold tracking-[-0.03em] sm:col-span-2 sm:text-right">
-                        3,99 <span class="text-[0.8125rem] font-semibold text-ink/70">USD/mes</span>
-                    </p>
-                </div>
-
-                <div class="grid gap-x-6 gap-y-2 border-b border-ink/12 py-5 sm:grid-cols-12 sm:items-baseline">
-                    <div class="sm:col-span-5">
-                        <h3 class="text-[1rem] font-semibold">Familiar</h3>
-                        <p class="mt-0.5 text-[0.875rem] leading-[1.5] text-ink/70">Hasta 5 vehículos compartidos.</p>
-                    </div>
-                    <p class="text-[0.875rem] text-ink/70 sm:col-span-3">5 vehículos · 5 personas</p>
-                    <p class="text-[0.875rem] text-ink/70 sm:col-span-2">Todos los avisos</p>
-                    <p class="text-[1.375rem] font-bold tracking-[-0.03em] sm:col-span-2 sm:text-right">
-                        7,99 <span class="text-[0.8125rem] font-semibold text-ink/70">USD/mes</span>
-                    </p>
-                </div>
-
-                <div class="grid gap-x-6 gap-y-2 border-b border-ink/12 py-5 sm:grid-cols-12 sm:items-baseline">
-                    <div class="sm:col-span-5">
-                        <h3 class="text-[1rem] font-semibold">Flota</h3>
-                        <p class="mt-0.5 text-[0.875rem] leading-[1.5] text-ink/70">Conductores que registran sin tocar la configuración.</p>
-                    </div>
-                    <p class="text-[0.875rem] text-ink/70 sm:col-span-3">25 vehículos · 10 personas</p>
-                    <p class="text-[0.875rem] text-ink/70 sm:col-span-2">Rol de conductor y reportes</p>
-                    <p class="text-[1.375rem] font-bold tracking-[-0.03em] sm:col-span-2 sm:text-right">
-                        29,99 <span class="text-[0.8125rem] font-semibold text-ink/70">USD/mes</span>
-                    </p>
-                </div>
-
-                <div class="grid gap-x-6 gap-y-2 border-b border-ink/12 py-5 sm:grid-cols-12 sm:items-baseline">
-                    <div class="sm:col-span-5">
-                        <h3 class="text-[1rem] font-semibold">Empresa</h3>
-                        <p class="mt-0.5 text-[0.875rem] leading-[1.5] text-ink/70">Para operaciones grandes.</p>
-                    </div>
-                    <p class="text-[0.875rem] text-ink/70 sm:col-span-3">75 vehículos · 25 personas</p>
-                    <p class="text-[0.875rem] text-ink/70 sm:col-span-2">Reportes de la flota</p>
-                    <p class="text-[1.375rem] font-bold tracking-[-0.03em] sm:col-span-2 sm:text-right">
-                        59,99 <span class="text-[0.8125rem] font-semibold text-ink/70">USD/mes</span>
-                    </p>
-                </div>
-            </div>
+            <table class="lc-table lc-table-stack lc-table-spec mt-8">
+                <caption class="sr-only">Planes de CarCheck con precio, vehículos y personas</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Plan</th>
+                        <th scope="col">Vehículos</th>
+                        <th scope="col">Personas</th>
+                        <th scope="col" class="text-right">Precio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row" class="font-semibold">
+                            Básico
+                            <span class="mt-0.5 block text-[0.8125rem] font-normal text-ink/70">Un vehículo y su historial completo.</span>
+                        </th>
+                        <td data-label="Vehículos">1</td>
+                        <td data-label="Personas">—</td>
+                        <td data-label="Precio" class="text-left font-semibold sm:text-right">3,99 USD/mes</td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="font-semibold">
+                            Familiar
+                            <span class="mt-0.5 block text-[0.8125rem] font-normal text-ink/70">Hasta 5 vehículos compartidos.</span>
+                        </th>
+                        <td data-label="Vehículos">5</td>
+                        <td data-label="Personas">5</td>
+                        <td data-label="Precio" class="text-left font-semibold sm:text-right">7,99 USD/mes</td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="font-semibold">
+                            Flota
+                            <span class="mt-0.5 block text-[0.8125rem] font-normal text-ink/70">Conductores que registran sin tocar la configuración.</span>
+                        </th>
+                        <td data-label="Vehículos">25</td>
+                        <td data-label="Personas">10</td>
+                        <td data-label="Precio" class="text-left font-semibold sm:text-right">29,99 USD/mes</td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="font-semibold">
+                            Empresa
+                            <span class="mt-0.5 block text-[0.8125rem] font-normal text-ink/70">Para operaciones grandes.</span>
+                        </th>
+                        <td data-label="Vehículos">75</td>
+                        <td data-label="Personas">25</td>
+                        <td data-label="Precio" class="text-left font-semibold sm:text-right">59,99 USD/mes</td>
+                    </tr>
+                </tbody>
+            </table>
 
             <p class="mt-5 text-[0.8125rem] text-ink/70">
                 Precios publicados en el sistema. El alta de la cuenta la hace el equipo de CarCheck.
             </p>
         </section>
 
-        {{-- Cierre --}}
-        <section class="lc-wrap pb-16 lg:pb-24" aria-labelledby="cierre-titulo">
-            <div class="rounded-xl bg-navy px-6 py-12 text-white sm:px-10 lg:px-14 lg:py-16">
-                <div class="grid items-end gap-8 lg:grid-cols-12">
-                    <div class="lg:col-span-8">
-                        <h2 id="cierre-titulo" class="lc-display max-w-[20ch] text-[clamp(1.9rem,3.6vw,3rem)]">
+        {{-- Acceso: el camino real para un visitante sin cuenta --}}
+        <section id="acceso" class="lc-wrap pb-16 lg:pb-24" aria-labelledby="acceso-titulo">
+            <div class="grid overflow-hidden rounded-xl border border-ink/15 lg:grid-cols-12">
+                <div class="flex flex-col justify-between gap-8 bg-navy px-6 py-10 text-white sm:px-10 lg:col-span-5 lg:py-12">
+                    <div>
+                        <h2 id="acceso-titulo" class="lc-display max-w-[18ch] text-[clamp(1.8rem,3.2vw,2.6rem)]">
                             Empieza por el vehículo que más te preocupa.
                         </h2>
-                        <p class="mt-4 max-w-[46ch] text-[0.9375rem] leading-[1.65] text-white/70">
-                            En cinco minutos tienes el historial cargado y la primera fecha a la vista.
+                        <p class="mt-4 max-w-[38ch] text-[0.9375rem] leading-[1.65] text-white/75">
+                            El alta la hace el equipo: cuéntanos cuántos vehículos tienes y te
+                            escribimos para dejarlo cargado.
                         </p>
                     </div>
-                    <div class="lg:col-span-4 lg:text-right">
-                        <a href="{{ url('/admin/login') }}" class="lc-btn bg-white !text-navy hover:!bg-paper">
-                            Entrar al panel
-                        </a>
-                    </div>
+                    <ul class="space-y-2 text-[0.875rem] text-white/80">
+                        <li>14 días de prueba en todos los planes</li>
+                        <li>Sin tarjeta para empezar</li>
+                        <li>Respondemos de lunes a viernes</li>
+                    </ul>
+                </div>
+
+                <div class="bg-paper-2 px-6 py-10 sm:px-10 lg:col-span-7 lg:py-12">
+                    @if (session('access_request_sent'))
+                        <div role="status" class="flex h-full flex-col justify-center">
+                            <p class="lc-label">Solicitud recibida</p>
+                            <p class="mt-2 max-w-[40ch] text-[1.125rem] leading-[1.5]">
+                                Gracias. Te escribimos al correo que dejaste para darte de alta y
+                                cargar el primer vehículo contigo.
+                            </p>
+                        </div>
+                    @else
+                        <form method="POST" action="{{ route('access-request.store') }}" class="grid gap-4 sm:grid-cols-2">
+                            @csrf
+                            <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true">
+
+                            <div class="sm:col-span-2">
+                                <label for="name" class="lc-label">Nombre</label>
+                                <input id="name" name="name" type="text" required autocomplete="name"
+                                       value="{{ old('name') }}" class="lc-field mt-1.5" @error('name') aria-invalid="true" @enderror>
+                                @error('name') <p class="lc-error">{{ $message }}</p> @enderror
+                            </div>
+
+                            <div>
+                                <label for="email" class="lc-label">Correo</label>
+                                <input id="email" name="email" type="email" required autocomplete="email"
+                                       value="{{ old('email') }}" class="lc-field mt-1.5" @error('email') aria-invalid="true" @enderror>
+                                @error('email') <p class="lc-error">{{ $message }}</p> @enderror
+                            </div>
+
+                            <div>
+                                <label for="company" class="lc-label">Empresa o garaje</label>
+                                <input id="company" name="company" type="text" required autocomplete="organization"
+                                       value="{{ old('company') }}" class="lc-field mt-1.5" @error('company') aria-invalid="true" @enderror>
+                                @error('company') <p class="lc-error">{{ $message }}</p> @enderror
+                            </div>
+
+                            <div>
+                                <label for="fleet" class="lc-label">Vehículos</label>
+                                <select id="fleet" name="fleet" class="lc-field mt-1.5">
+                                    <option value="">Elegir…</option>
+                                    @foreach (['1', '2 a 5', '6 a 25', '26 a 75', 'Más de 75'] as $opcion)
+                                        <option value="{{ $opcion }}" @selected(old('fleet') === $opcion)>{{ $opcion }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="sm:col-span-2">
+                                <label for="message" class="lc-label">Qué necesitas (opcional)</label>
+                                <textarea id="message" name="message" rows="3" class="lc-field mt-1.5">{{ old('message') }}</textarea>
+                                @error('message') <p class="lc-error">{{ $message }}</p> @enderror
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-4 sm:col-span-2">
+                                <button type="submit" class="lc-btn lc-btn-primary">Enviar solicitud</button>
+                                <p class="text-[0.75rem] text-ink/70">Sin tarjeta. Te escribimos antes de dar de alta nada.</p>
+                            </div>
+                        </form>
+                    @endif
                 </div>
             </div>
         </section>
@@ -366,8 +441,8 @@
         <div class="lc-wrap flex flex-col gap-4 py-8 text-[0.8125rem] text-ink/70 sm:flex-row sm:items-center sm:justify-between">
             <p>CarCheck · mantenimiento y documentos por vehículo</p>
             <nav class="flex items-center gap-5" aria-label="Pie de página">
-                <a href="#planes" class="transition-colors hover:text-ink">Planes</a>
-                <a href="{{ url('/admin/login') }}" class="transition-colors hover:text-ink">Entrar</a>
+                <a href="#planes" class="lc-footerlink transition-colors hover:text-ink">Planes</a>
+                <a href="{{ url('/admin/login') }}" class="lc-footerlink transition-colors hover:text-ink">Ya tengo cuenta</a>
                 <span>{{ date('Y') }}</span>
             </nav>
         </div>

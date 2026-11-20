@@ -110,6 +110,18 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Buzón de contacto
+    |--------------------------------------------------------------------------
+    |
+    | Dirección que recibe las solicitudes de acceso enviadas desde la landing.
+    | Si no se define, se usa la dirección de "from".
+    |
+    */
+
+    'contact_address' => env('CONTACT_EMAIL'),
+
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
