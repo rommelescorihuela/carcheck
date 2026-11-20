@@ -31,6 +31,15 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->brandName('CarCheck')
+            ->brandLogo(asset('brand/carcheck-mark.svg'))
+            ->brandLogoHeight('2.25rem')
+            ->favicon(asset('brand/carcheck-mark.svg'))
+            ->font('Outfit')
+            ->darkMode(true)
+            ->defaultThemeMode(\Filament\Enums\ThemeMode::Dark)
+            ->spa()
+            ->sidebarCollapsibleOnDesktop()
+            ->maxContentWidth(\Filament\Support\Enums\Width::Full)
             ->colors([
                 // Mismo azul profundo que la PWA y la landing.
                 'primary' => Color::hex('#1d4a70'),
