@@ -2,8 +2,313 @@
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+
+@font-face {
+    font-family: 'Archivo';
+    src: url('/fonts/archivo.woff2') format('woff2-variations');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
 
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-display: 'Archivo', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+
+    --color-paper: #f4f1ea;
+    --color-paper-2: #fbf9f4;
+    --color-ink: #10202e;
+    --color-navy: #1d4a70;
+    --color-navy-deep: #163a58;
+    --color-signal: #c03a2b;
+    --color-soon: #a86a10;
+}
+
+@layer base {
+    .landing {
+        background-color: var(--color-paper);
+        color: var(--color-ink);
+        font-family: var(--font-display);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .landing ::selection {
+        background: var(--color-navy);
+        color: var(--color-paper-2);
+    }
+
+    .landing :focus-visible {
+        outline: 2px solid var(--color-navy);
+        outline-offset: 3px;
+        border-radius: 2px;
+    }
+}
+
+@layer components {
+    .lc-wrap {
+        width: 100%;
+        max-width: 78rem;
+        margin-inline: auto;
+        padding-inline: clamp(1.25rem, 4vw, 3rem);
+    }
+
+    .lc-display {
+        font-weight: 700;
+        letter-spacing: -0.035em;
+        line-height: 0.98;
+        text-wrap: balance;
+    }
+
+    .lc-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+    }
+
+    .lc-rule {
+        border-top: 1px solid color-mix(in srgb, var(--color-ink) 14%, transparent);
+    }
+
+    .lc-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-height: 2.875rem;
+        padding: 0 1.25rem;
+        border-radius: 0.375rem;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        letter-spacing: -0.01em;
+        transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease;
+    }
+
+    .lc-btn-primary {
+        background: var(--color-navy);
+        color: #fff;
+    }
+
+    .lc-btn-primary:hover {
+        background: var(--color-navy-deep);
+    }
+
+    .lc-btn-ghost {
+        color: var(--color-ink);
+        border: 1px solid color-mix(in srgb, var(--color-ink) 22%, transparent);
+        background: transparent;
+    }
+
+    .lc-btn-ghost:hover {
+        border-color: var(--color-ink);
+        background: color-mix(in srgb, var(--color-ink) 4%, transparent);
+    }
+
+    .lc-plate {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.1875rem 0.5rem;
+        border: 1px solid color-mix(in srgb, var(--color-ink) 30%, transparent);
+        border-radius: 0.1875rem;
+        background: #fff;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+    }
+
+    .lc-sheet {
+        border: 1px solid color-mix(in srgb, var(--color-ink) 16%, transparent);
+        border-radius: 0.875rem;
+        background: var(--color-paper-2);
+    }
+
+    .lc-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.1875rem 0.5rem;
+        border-radius: 0.1875rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+    }
+
+    .lc-chip-overdue {
+        background: color-mix(in srgb, var(--color-signal) 12%, transparent);
+        color: #8f2a1e;
+    }
+
+    .lc-chip-soon {
+        background: color-mix(in srgb, var(--color-soon) 14%, transparent);
+        color: #7c4e08;
+    }
+
+    .lc-chip-ok {
+        background: color-mix(in srgb, var(--color-navy) 9%, transparent);
+        color: var(--color-navy-deep);
+    }
+
+    .lc-meter {
+        height: 0.375rem;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--color-ink) 12%, transparent);
+        overflow: hidden;
+    }
+
+    .lc-meter > span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: var(--color-soon);
+        transform-origin: left center;
+        animation: lc-meter-in 900ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
+    }
+
+    .lc-stamp {
+        display: inline-block;
+        padding: 0.25rem 0.625rem;
+        border: 2px solid var(--color-soon);
+        border-radius: 0.1875rem;
+        color: var(--color-soon);
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        transform: rotate(-3deg);
+    }
+
+    .lc-seq {
+        display: grid;
+        gap: 0.5rem;
+    }
+
+    .lc-seq > li {
+        display: grid;
+        grid-template-columns: 2rem 1fr;
+        gap: 0.75rem;
+        padding-block: 1rem;
+        border-top: 1px solid color-mix(in srgb, var(--color-ink) 12%, transparent);
+    }
+
+    .lc-num {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: var(--color-navy);
+        padding-top: 0.2rem;
+    }
+
+    .lc-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9375rem;
+    }
+
+    .lc-table th,
+    .lc-table td {
+        text-align: left;
+        padding: 0.75rem 0.75rem 0.75rem 0;
+        vertical-align: top;
+        border-top: 1px solid color-mix(in srgb, var(--color-ink) 12%, transparent);
+    }
+
+    .lc-table thead th {
+        border-top: 0;
+        padding-top: 0;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+    }
+
+
+    @media (max-width: 767px) {
+        .lc-table-stack,
+        .lc-table-stack thead,
+        .lc-table-stack tbody,
+        .lc-table-stack tr,
+        .lc-table-stack th,
+        .lc-table-stack td {
+            display: block;
+            width: 100%;
+        }
+
+        .lc-table-stack thead {
+            display: none;
+        }
+
+        .lc-table-stack tr {
+            padding-block: 0.875rem;
+            border-top: 1px solid color-mix(in srgb, var(--color-ink) 12%, transparent);
+        }
+
+        .lc-table-stack th,
+        .lc-table-stack td {
+            padding: 0;
+            border: 0;
+        }
+
+        .lc-table-stack td {
+            margin-top: 0.35rem;
+        }
+
+        .lc-table-stack td::before {
+            content: attr(data-label);
+            display: block;
+            margin-bottom: 0.15rem;
+            font-size: 0.625rem;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+        }
+    }
+
+    .lc-reveal {
+        animation: lc-rise 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .lc-reveal-2 {
+        animation-delay: 90ms;
+    }
+
+    .lc-reveal-3 {
+        animation-delay: 180ms;
+    }
+}
+
+@keyframes lc-meter-in {
+    from {
+        transform: scaleX(0);
+    }
+    to {
+        transform: scaleX(1);
+    }
+}
+
+@keyframes lc-rise {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .landing *,
+    .landing *::before,
+    .landing *::after {
+        animation-duration: 0.001ms !important;
+        animation-delay: 0ms !important;
+        transition-duration: 0.001ms !important;
+    }
 }

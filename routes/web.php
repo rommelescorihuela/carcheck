@@ -3,8 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 /*
- * El backend vive en un subdominio propio (api.tudominio.com) y su única
- * interfaz web es el panel. La raíz lleva al panel en vez de mostrar la
- * pantalla de bienvenida de Laravel.
+ * El backend vive en un subdominio propio (api.tudominio.com). La raíz es la
+ * landing de producto; el panel sigue en /admin.
  */
-Route::redirect('/', '/admin');
+Route::view('/', 'landing')->name('home');

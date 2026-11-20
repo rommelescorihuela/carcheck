@@ -7,11 +7,19 @@ use Tests\TestCase;
 class ExampleTest extends TestCase
 {
     /**
-     * El backend se publica en un subdominio de API: la raíz no debe mostrar
-     * la pantalla de bienvenida de Laravel.
+     * La raíz es la landing de producto, no la pantalla de bienvenida de Laravel
+     * ni un salto directo al panel.
      */
-    public function test_the_root_redirects_to_the_admin_panel(): void
+    public function test_the_root_shows_the_product_landing(): void
     {
-        $this->get('/')->assertRedirect('/admin');
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('CarCheck')
+            ->assertSee('El auto avisa antes de romperse');
+    }
+
+    public function test_the_admin_panel_is_still_reachable(): void
+    {
+        $this->get('/admin/login')->assertOk();
     }
 }
